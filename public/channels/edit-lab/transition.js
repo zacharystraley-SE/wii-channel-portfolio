@@ -155,6 +155,10 @@ const blurKF = [{ filter: 'blur(0px)' }, { filter: 'blur(1px)', offset: .3 }, { 
 const hiresIn = [{ opacity: 0 }, { opacity: 0, offset: .4 }, { opacity: 1, offset: .6 }, { opacity: 1 }];
 async function startChannel() {
   const reduce = reduced();
+  // The final iMac image and the page live in shell elements other channels also use, so claim them on every start.
+  if (MAN.hires && finalImg.src !== asset(MAN.hires.src)) { finalImg.src = asset(MAN.hires.src); await finalImg.decode().catch(() => {}); }
+  const pageTpl = document.getElementById('page-edit-lab');
+  if (pageTpl) screenEl.querySelector('.page').replaceChildren(pageTpl.content.cloneNode(true));
   show(preview, false);
   const W = vw(), H = vh();
   applyState(video.currentTime % DUR);

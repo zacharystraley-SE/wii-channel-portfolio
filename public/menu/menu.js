@@ -1,6 +1,9 @@
 const $ = selector => document.querySelector(selector);
-const home = $('#home'), grid = $('#grid'), tile = $('#edit-tile');
-const stage = $('#stage'), video = $('#loop'), preview = $('#preview'), screen = $('#screen');
+const home = $('#home'), grid = $('#grid'), tiles = [...document.querySelectorAll('.tile.live[data-channel]')], tile = tiles[0];
+// Each live tile owns a stage (its cover video, pinned over the tile while idle). The active one follows the selection.
+const stageOf = t => document.getElementById(t.dataset.stage);
+let stage = stageOf(tile), video = stage.querySelector('video');
+const preview = $('#preview'), screen = $('#screen');
 const start = $('#pv-start'), menu = $('#pv-menu'), back = $('#back'), final = $('#final');
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 const page = screen.querySelector('.page');
@@ -9,6 +12,7 @@ let wheelDistance = 0, lastWheel = -Infinity, wheelTail = false;
 let swipeOrigin = null;
 let readerMotion = null;
 let origin = tile, state = 'home', busy = false, channel, preparation;
+const channels = new Map();   // channel id -> prepared { startChannel, closeChannel, layoutFinal }
 
 function emptySlot(parent) {
   const slot = document.createElement('div');
@@ -64,41 +68,54 @@ function clock() {
 }
 clock();
 
-function tileBounds(){
-  const r=origin.getBoundingClientRect();
+function tileBounds(t=origin){
+  const r=t.getBoundingClientRect();
   return {left:r.left+2, top:r.top+2, width:r.width-4,height:r.height-4,borderRadius:'5% / 12%'};
 }
 const fullBounds = () => ({left:0,top:0,width:innerWidth,height:innerHeight,borderRadius:'0px'});
 function pixels(rect) {
   return Object.fromEntries(Object.entries(rect).map(([k,v])=>[k,typeof v==='number'?v+'px':v]));
 }
-function pin(rect){Object.assign(stage.style,pixels(rect));}
+function pin(rect,el=stage){Object.assign(el.style,pixels(rect));}
 async function expand(open){
   const from=stage.getBoundingClientRect(), to=open?fullBounds():tileBounds();
   const animation=stage.animate([pixels({left:from.left,top:from.top,width:from.width,height:from.height,borderRadius:getComputedStyle(stage).borderRadius}),pixels(to)],{duration:reduced.matches?1:(open?520:480),easing:'cubic-bezier(.3,.7,.2,1)',fill:'both'});
   await animation.finished;pin(open?fullBounds():tileBounds());animation.cancel();
 }
 function resize(){
-  if(state==='home')pin(tileBounds());
+  if(state==='home'){for(const t of tiles)pin(tileBounds(t),stageOf(t));}
   else if(!busy){pin(fullBounds()); if(state==='channel'){channel.layoutFinal();if(screen.classList.contains('reading'))Object.assign(screen.style,rectStyles(final.getBoundingClientRect()))}}
 }
 new ResizeObserver(()=>resize()).observe(grid);addEventListener('resize',resize);
 function idlePlayback(){
-  if(reduced.matches){video.pause();}else if(state==='home'||state==='preview')video.play().catch(()=>{});
+  for(const t of tiles){
+    const v=stageOf(t).querySelector('video');
+    if(reduced.matches||(state!=='home'&&v!==video))v.pause();
+    else if(state==='home'||state==='preview')v.play().catch(()=>{});
+  }
 }
 reduced.addEventListener('change',idlePlayback);
-stage.classList.add('idle');resize();stage.style.visibility='visible';idlePlayback();
+for(const t of tiles){const st=stageOf(t);st.classList.add('idle');st.style.visibility='visible';}resize();idlePlayback();
+const preparing = new Map();   // channel id -> in-flight preparation
 async function prepare(){
-  if(channel || preparation)return;
+  const id=origin.dataset.channel;
+  if(channel)return;
+  if(channels.has(id)){channel=channels.get(id);start.textContent='Start';start.disabled=false;return;}
   start.disabled=true;start.textContent='Loading…';$('#status').textContent='';
-  preparation=import('../channels/edit-lab/transition.js').then(module=>module.prepareChannel());
-  try{channel=await preparation;start.textContent='Start';}
-  catch{start.textContent='Retry';$('#status').textContent='Channel artwork could not load.';}
-  finally{preparation=null;start.disabled=false;}
+  if(!preparing.has(id))preparing.set(id,import(`../channels/${id}/transition.js`).then(module=>module.prepareChannel()));
+  preparation=preparing.get(id);
+  try{const ready=await preparing.get(id);channels.set(id,ready);if(origin.dataset.channel===id){channel=ready;start.textContent='Start';}}
+  catch{preparing.delete(id);if(origin.dataset.channel===id){start.textContent='Retry';$('#status').textContent='Channel artwork could not load.';}}
+  finally{if(origin.dataset.channel===id){preparation=null;start.disabled=false;}}
 }
 async function select(event){
   if(busy||state!=='home')return;
   origin=event.currentTarget;busy=true;state='preview';syncGrain();
+  stage=stageOf(origin);video=stage.querySelector('video');channel=channels.get(origin.dataset.channel);
+  const name=origin.dataset.title||'Channel';
+  preview.setAttribute('aria-label',name+' preview');final.setAttribute('aria-label',name+' channel');final.dataset.channel=origin.dataset.channel;
+  for(const t of tiles)if(t!==origin)stageOf(t).style.display='none';   // display, not visibility: channel code may mark its videos visible
+  idlePlayback();
   home.inert=true;home.classList.add('departing');stage.classList.remove('idle');
   prepare();await expand(true);
   preview.inert=false;preview.style.visibility='visible';preview.style.opacity=1;
@@ -117,6 +134,7 @@ async function goHome(){
   preview.inert=true;preview.style.visibility='hidden';preview.style.opacity=0;
   home.classList.remove('departing');await expand(false);
   stage.classList.add('idle');home.inert=false;state='home';busy=false;syncGrain();
+  for(const t of tiles)stageOf(t).style.display='';
   back.disabled=false;origin.focus({preventScroll:true});resize();idlePlayback();
 }
 function rectStyles(rect) {
@@ -207,5 +225,5 @@ new ResizeObserver(([entry])=>{
   screen.style.setProperty('--screen-w',Math.round(width)+'px');
   screen.style.setProperty('--screen-h',Math.round(height)+'px');
 }).observe(screen);
-tile.addEventListener('click',select);menu.addEventListener('click',goHome);back.addEventListener('click',goHome);start.addEventListener('click',enter);
+for(const t of tiles)t.addEventListener('click',select);menu.addEventListener('click',goHome);back.addEventListener('click',goHome);start.addEventListener('click',enter);
 addEventListener('keydown',event=>{if(event.key==='Escape' && state!=='home'){event.preventDefault();goHome();}});
