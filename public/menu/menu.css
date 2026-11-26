@@ -43,7 +43,8 @@ button{font:inherit}button:focus-visible,.mail:focus-visible,.page:focus-visible
 .clock-intro{color:#59b5d4;font-size:clamp(16px,3.2vw,50px);animation:title-out .35s 3s both}
 #digits{gap:.2vw;animation:clock-in .35s 3s both}
 #digits svg{height:78%;width:auto;fill:#8c8c8e}
-#date{position:absolute;top:43%;font-size:min(3.6vw,6.5vh);letter-spacing:.04em;line-height:1}
+#digits small{align-self:flex-end;margin:0 0 .35em .25em;font-size:clamp(12px,1.4vw,24px);line-height:1}
+#date{position:absolute;top:43%;font-size:min(3.6vw,6.5vh);letter-spacing:.04em;line-height:1;white-space:nowrap}
 @keyframes title-out{to{opacity:0}}@keyframes clock-in{from{opacity:0}}
 @media(pointer:fine){#home,#home button,#preview button,#back{cursor:url(player-one.png) 16 4,pointer}}
 @media(orientation:portrait){.wall{inset:17% 6% 27%;--gx:2vw;--gy:1vh}#grid{grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(4,1fr)}.edge{display:none}.dock{top:77%}.wii,.mail{width:13vw}#date{font-size:5.3vw}.clock-intro{font-size:6vw}.tile{border-radius:8% / 12%}}

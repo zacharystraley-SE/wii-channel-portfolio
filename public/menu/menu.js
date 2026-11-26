@@ -55,11 +55,17 @@ syncGrain();
 // The hollow seven-segment face follows the console clock, including the changing colon.
 const segments = ['2,1 13,1 15,3 13,5 3,5 1,3','14,4 16,3 16,13 14,15 12,13 12,6','14,16 16,18 16,27 14,29 12,27 12,18','3,27 12,27 14,29 12,31 3,31 1,29','1,16 3,18 3,26 1,28 0,26 0,18','1,4 3,6 3,13 1,15 0,13 0,6','3,14 12,14 14,16 12,18 3,18 1,16'];
 const digitSegments = ['012345','12','01643','01623','5612','05623','056432','012','0123456','012356'];
+const dockDate = new Intl.DateTimeFormat('en-US', {weekday: 'short', month: 'long', day: 'numeric'});
 function clock() {
-  const now = new Date(), time = now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
-  const date = new Intl.DateTimeFormat('en-GB',{weekday:'short'}).format(now)+' '+new Intl.DateTimeFormat('en-GB',{day:'2-digit',month:'2-digit'}).format(now);
+  const now = new Date();
+  const hour = now.getHours();
+  const time = (hour % 12 || 12) + ':' + String(now.getMinutes()).padStart(2, '0');
+  const period = hour < 12 ? 'AM' : 'PM';
+  const date = dockDate.format(now);
   $('#digits').innerHTML = Array.from(time,ch => ch === ':' ? '<svg viewBox="0 0 5 32"><circle cx="2.5" cy="11" r="1.9"/><circle cx="2.5" cy="21" r="1.9"/></svg>' : '<svg viewBox="0 0 17 32">'+Array.from(digitSegments[Number(ch)],n=>'<polygon points="'+segments[Number(n)]+'"/>').join('')+'</svg>').join('');
-  $('#date').textContent=date; $('.clock').setAttribute('aria-label',time+' '+date);
+  $('#digits').insertAdjacentHTML('beforeend', '<small>' + period + '</small>');
+  $('#date').textContent = date;
+  $('.clock').setAttribute('aria-label', time + ' ' + period + ', ' + date);
   setTimeout(clock, 60000-now.getSeconds()*1000-now.getMilliseconds());
 }
 clock();
