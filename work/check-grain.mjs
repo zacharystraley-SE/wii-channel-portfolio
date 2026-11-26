@@ -4,7 +4,8 @@ import {cmd,ev,until,size,sleep,socket,errors} from './browser.mjs';
 await size(668,605);
 await cmd('Emulation.setEmulatedMedia',{features:[]});
 await cmd('Page.navigate',{url:'http://127.0.0.1:8787/'});
-await until("document.querySelectorAll('.empty canvas').length===14");
+// 9 empty grid slots + 3 edge slots (Edit Lab, Yester Zone and the name tag take the other three)
+await until("document.querySelectorAll('.empty canvas').length===12");
 await sleep(500);
 const clip=await ev("(()=>{const r=document.querySelectorAll('#grid .empty')[3].getBoundingClientRect();return {x:Math.ceil(r.x)+4,y:Math.ceil(r.y)+4,width:Math.floor(r.width)-8,height:Math.floor(r.height)-8,scale:1}})()");
 async function capture(){return (await cmd('Page.captureScreenshot',{format:'png',clip})).data}

@@ -24,6 +24,10 @@ reference/edit-lab-channel/source-layers/
 *.prproj
 *.drp
 
+# Blender scenes stay on Zach's PC; only the compressed exports the page loads belong here
+*.blend
+*.blend1
+
 # Personal documents: resumes include phone and personal email
 public/resumes/
 work/resume-export/
@@ -34,3 +38,7 @@ work/*.pid
 work/*.png
 work/*.jpg
 work/grain-review/
+
+# Yester Zone cover bake: render inputs and frame dumps stay local; only cover.mp4 is committed
+work/yz-bake/frames/
+work/yz-bake/*.png

@@ -1,0 +1,67 @@
+/* ---------- The Yester Zone stage (cover loop, then the camera swing on Start) ---------- */
+#yz-stage{position:fixed;overflow:hidden;z-index:5;border-radius:14px;background:#0b1626;visibility:hidden;contain:strict;pointer-events:none}
+#yz-stage video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+#yz-stage.idle video{object-fit:cover}
+@media(orientation:portrait){#yz-stage video{object-fit:contain}}
+#yz-scene{position:absolute;inset:0;visibility:hidden}
+.yz-cam{position:absolute;left:0;top:0;width:1600px;height:900px;transform-origin:0 0}
+#yz-stage .yz-cam video.yz-swing{position:absolute;inset:0;width:100%;height:100%;object-fit:fill}
+.yz-cam .yz-tube{position:absolute;left:0;top:0;width:1440px;height:1080px;transform-origin:0 0}
+
+/* ---------- The tube: a 4:3 picture with the on-screen display in the letterbox bars ---------- */
+.yz-tube{container-type:size;position:relative;overflow:hidden;background:#020303;border-radius:5% / 6.5%;
+ font-family:"VT323","DejaVu Sans Mono","Courier New",monospace;color:#e9e4d6}
+.yz-pic{position:absolute;left:0;top:12.5%;width:100%;height:75%;object-fit:cover;filter:contrast(1.05) saturate(.92)}
+.yz-bar{position:absolute;left:0;right:0;height:12.5%;display:flex;align-items:center;padding:0 6.4cqw;
+ letter-spacing:.08em;text-transform:uppercase;font-weight:700;
+ text-shadow:0 0 .42cqw rgb(233 228 214 / 75%),.14cqw 0 0 rgb(255 60 60 / 35%),-.14cqw 0 0 rgb(60 160 255 / 35%)}
+.yz-top{top:0;justify-content:space-between;font-size:2.1cqw}
+.yz-bottom{bottom:0;justify-content:center;font-size:2.4cqw}
+.yz-ch{margin-left:auto;opacity:.55}
+.yz-stats{display:flex;gap:4.7cqw}
+.yz-stats small{font-size:.7em;opacity:.6;margin-left:.6em}
+.yz-logo{position:relative;display:block;height:6.9cqw}
+.yz-logo[hidden]{display:none}
+.yz-logo img{height:100%;display:block}
+.yz-mark{filter:blur(.05cqw) saturate(1.05) brightness(1.04) drop-shadow(.17cqw 0 0 rgb(255 50 50 / 32%)) drop-shadow(-.17cqw 0 0 rgb(50 150 255 / 32%))}
+.yz-bloom{position:absolute;inset:0;filter:blur(1cqw) saturate(1.2);opacity:.32;mix-blend-mode:screen}
+.yz-static{position:absolute;inset:0;width:100%;height:100%;opacity:0;image-rendering:pixelated;transition:opacity .08s}
+.yz-tube.tuning .yz-static{opacity:.92}
+/* Scanlines, phosphor vignette and a little glass glare sit over everything, so the bars and logo look broadcast, not pasted on */
+.yz-glass{position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+ background:
+  radial-gradient(ellipse at 36% 20%,rgb(255 255 255 / 9%),rgb(255 255 255 / 0%) 42%),
+  repeating-linear-gradient(to bottom,rgb(0 0 0 / 0%) 0 .28cqh,rgb(0 0 0 / 28%) .28cqh .42cqh);
+ box-shadow:inset 0 0 8cqw 2.4cqw rgb(0 0 0 / 72%)}
+
+/* ---------- Final state: the head-on TV, with the channel page in the glass ---------- */
+#final[data-channel="yester-zone"]{background:#0b1626}
+#final[data-channel="yester-zone"] .screen{background:#020303;border-radius:4.5% / 6%;box-shadow:inset 0 0 0 1px #0008}
+#final[data-channel="yester-zone"] .screen::after{background:radial-gradient(ellipse at center,transparent 60%,rgb(0 0 0 / 45%) 100%);z-index:1}
+#final[data-channel="yester-zone"] .screen .page{background:#020303;color:#e4e0d4;filter:none;text-shadow:none}
+#final[data-channel="yester-zone"] #enter-page{background:#11161c;color:#e4e0d4;border-color:#3a4652}
+
+.yz-page{min-height:100%;font:16px/1.5 system-ui,sans-serif}
+.yz-tv{position:relative;height:var(--screen-h,100cqh);min-height:240px;display:grid;place-items:center;background:#020303}
+.yz-tv .yz-tube{width:min(100%,calc(var(--screen-h,100cqh) * 4 / 3));aspect-ratio:4/3;border-radius:0}
+.yz-remote{position:absolute;right:clamp(8px,2.4cqw,22px);top:50%;transform:translateY(-50%);z-index:2;display:flex;flex-direction:column;gap:8px}
+.yz-remote button{width:44px;height:44px;border-radius:50%;border:1px solid rgb(233 228 214 / 35%);background:rgb(8 12 16 / 55%);color:#e9e4d6;
+ font:700 15px/1 system-ui,sans-serif;opacity:.6;transition:opacity .15s;cursor:inherit}
+.yz-remote button:hover,.yz-remote button:focus-visible{opacity:1}
+.yz-remote button[aria-pressed="true"]{border-color:#e9e4d6}
+
+.yz-guide{padding:clamp(22px,6cqw,90px);background:#0b0f14;border-top:1px solid #222a33}
+.yz-guide h1{margin:0;font:400 clamp(30px,6.2cqw,84px)/1.05 Georgia,serif;letter-spacing:-.03em;color:#f1ede1}
+.yz-guide .yz-lede{margin:.7em 0 1.6em;max-width:46ch;color:#b9b4a6;font-size:clamp(16px,2cqw,21px)}
+.yz-list{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.yz-list li{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:12px 14px;border:1px solid #232c36;border-radius:10px;background:#10161d}
+.yz-list li[aria-current="true"]{border-color:#7d8fa3;background:#151d26}
+.yz-num{font:700 15px/1 "DejaVu Sans Mono",monospace;color:#8d99a6;width:3.2em}
+.yz-list button.yz-tune{all:unset;cursor:inherit;color:#f1ede1;font-weight:600;line-height:1.3}
+.yz-list button.yz-tune:focus-visible{outline:3px solid #35b0d7;outline-offset:3px;border-radius:4px}
+.yz-list .yz-meta{display:block;font-size:13px;color:#8d99a6;font-weight:400;margin-top:3px}
+.yz-list a{color:#9ccde0;font-size:14px;white-space:nowrap}
+.yz-credit{margin:2em 0 0;font-size:13px;color:#7f8994}
+.yz-credit a{color:#9ccde0}
+@container (max-width:520px){.yz-list li{grid-template-columns:auto 1fr}.yz-list a{grid-column:2}.yz-remote{gap:6px}.yz-remote button{width:36px;height:36px;font-size:12px}}
+@media(prefers-reduced-motion:reduce){.yz-static{transition:none}}
