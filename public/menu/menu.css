@@ -28,8 +28,8 @@ button{font:inherit}button:focus-visible,.mail:focus-visible,.page:focus-visible
 }
 .tile.live{padding:0;background:#e8efec url(../channels/edit-lab/poster.webp) center/cover}
 .tile.live:hover,.tile.live:focus-visible,.name-tag:hover{outline:3px solid #55bddd;outline-offset:0;z-index:2}
-.name-tag{grid-row:2;grid-column:2;background:#fff}
-.name-tag svg{display:block;width:100%;height:100%;position:absolute;inset:0;border-radius:inherit;overflow:hidden}
+.name-tag{grid-row:-2 / -1;grid-column:1;background:#fff}
+.name-tag-face{display:block;width:100%;height:100%;position:absolute;inset:0;border-radius:inherit;overflow:hidden}
 .signature-still{display:none}
 @media(prefers-reduced-motion:reduce){.signature-motion{display:none}.signature-still{display:inline}}
 .bubble{position:absolute;top:101%;left:50%;transform:translateX(-50%);white-space:nowrap;background:#fff;color:#555;font-size:clamp(13px,2vw,27px);line-height:1.4;padding:0 .9em;border-radius:1em;border:1px solid #b7b7b7;box-shadow:0 2px 2px #7775;opacity:0;pointer-events:none;transition:opacity .12s}
@@ -43,7 +43,8 @@ button{font:inherit}button:focus-visible,.mail:focus-visible,.page:focus-visible
 .clock-intro{color:#59b5d4;font-size:clamp(16px,3.2vw,50px);animation:title-out .35s 3s both}
 #digits{gap:.2vw;animation:clock-in .35s 3s both}
 #digits svg{height:78%;width:auto;fill:#8c8c8e}
-#date{position:absolute;top:43%;font-size:min(3.6vw,6.5vh);letter-spacing:.04em;line-height:1}
+#digits small{align-self:flex-end;margin:0 0 .35em .25em;font-size:clamp(12px,1.4vw,24px);line-height:1}
+#date{position:absolute;top:43%;font-size:min(3.6vw,6.5vh);letter-spacing:.04em;line-height:1;white-space:nowrap}
 @keyframes title-out{to{opacity:0}}@keyframes clock-in{from{opacity:0}}
 @media(pointer:fine){#home,#home button,#preview button,#back{cursor:url(player-one.png) 16 4,pointer}}
 @media(orientation:portrait){.wall{inset:17% 6% 27%;--gx:2vw;--gy:1vh}#grid{grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(4,1fr)}.edge{display:none}.dock{top:77%}.wii,.mail{width:13vw}#date{font-size:5.3vw}.clock-intro{font-size:6vw}.tile{border-radius:8% / 12%}}
