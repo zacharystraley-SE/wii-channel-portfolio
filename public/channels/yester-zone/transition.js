@@ -26,10 +26,10 @@ export async function prepareChannel() {
   const cam = document.createElement('div'); cam.className = 'yz-cam';
   const swing = document.createElement('video');
   Object.assign(swing, { className: 'yz-swing', muted: true, playsInline: true, preload: 'auto' });
-  swing.src = asset('assets/path.mp4');
+  swing.src = asset('assets/flyin.mp4');
   const swingBack = document.createElement('video');
   Object.assign(swingBack, { className: 'yz-swing', muted: true, playsInline: true, preload: 'auto' });
-  swingBack.src = asset('assets/path-back.mp4'); swingBack.style.visibility = 'hidden';
+  swingBack.src = asset('assets/flyin-back.mp4'); swingBack.style.visibility = 'hidden';
   const flyTube = createTube(data);
   cam.append(swing, swingBack, flyTube.el);
   scene.replaceChildren(cam);
