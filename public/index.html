@@ -13,8 +13,14 @@
  <div class="wall"><div id="grid" aria-label="Channels">
  <button class="tile live" type="button" id="edit-tile" aria-label="Open Zach’s Edit Lab preview"><span class="bubble" aria-hidden="true">Zach’s Edit Lab</span></button>
  <div class="tile name-tag" role="img" aria-label="Hello, my name is Zach">
-  <svg viewBox="-7 -5 414 226" aria-hidden="true" focusable="false">
-   <image href="menu/name-tag.png" x="-32" y="-119" width="457" height="457"/>
+  <svg class="name-tag-face" aria-hidden="true" focusable="false">
+   <defs><image id="tag-art" href="menu/name-tag.png" width="1024" height="1024"/></defs>
+   <!-- Stretch only the paper and blue bands. The lettering and pen keep their proportions. -->
+   <svg width="100%" height="100%" viewBox="140 273 110 468" preserveAspectRatio="none"><use href="#tag-art"/></svg>
+   <svg width="100%" height="35%" viewBox="335 272 374 165">
+    <svg x="335" y="272" width="374" height="165" viewBox="335 272 374 165"><use href="#tag-art"/></svg>
+   </svg>
+   <svg y="35%" width="100%" height="54%" viewBox="55 77 277 104" overflow="visible">
    <defs>
     <!-- One continuous marker stroke, including the loop in the h. -->
     <path id="zach-signature" pathLength="1" d="M86 118 C94 104 126 98 158 98 C146 110 107 145 87 162 C111 155 135 146 161 146 C168 136 185 122 192 128 C196 134 182 150 171 151 C157 152 173 127 192 128 Q198 126 201 123 C195 134 181 155 194 151 Q201 149 209 140 C216 132 230 120 235 126 Q237 128 233 131 C224 122 202 151 216 153 C230 155 252 133 265 115 C283 89 267 92 257 113 Q247 134 239 153 C251 139 267 126 273 128 C280 132 260 150 272 152 Q283 155 300 141"/>
@@ -23,14 +29,14 @@
     <use class="signature-still" href="#zach-signature"/>
     <g class="signature-motion">
      <use href="#zach-signature" stroke-dasharray="1 1" stroke-dashoffset="1">
-      <animate attributeName="stroke-dashoffset" values="1;1;0;0" keyTimes="0;.09;.42;1" dur="8s" repeatCount="indefinite"/>
-      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.09;.83;.96;1" dur="8s" repeatCount="indefinite"/>
+      <animate attributeName="stroke-dashoffset" values="1;1;0;0" keyTimes="0;.05;.36;1" dur="16s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.05;.86;.99;1" dur="16s" repeatCount="indefinite"/>
      </use>
      <g stroke="none" opacity="0">
-      <animateMotion keyPoints="0;0;1;1" keyTimes="0;.09;.42;1" calcMode="linear" dur="8s" repeatCount="indefinite"><mpath href="#zach-signature"/></animateMotion>
-      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;.03;.08;.42;.48;1" dur="8s" repeatCount="indefinite"/>
+      <animateMotion keyPoints="0;0;1;1" keyTimes="0;.05;.36;1" calcMode="linear" dur="16s" repeatCount="indefinite"><mpath href="#zach-signature"/></animateMotion>
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;.01;.045;.36;.40;1" dur="16s" repeatCount="indefinite"/>
       <g transform="rotate(35)">
-       <animateTransform attributeName="transform" type="translate" additive="sum" values="0 -9;0 0;0 0;0 -10;0 -10" keyTimes="0;.09;.42;.48;1" dur="8s" repeatCount="indefinite"/>
+       <animateTransform attributeName="transform" type="translate" additive="sum" values="0 -9;0 0;0 0;0 -10;0 -10" keyTimes="0;.05;.36;.40;1" dur="16s" repeatCount="indefinite"/>
        <path fill="#242329" d="M-2 0 -3 -7 1 -11 3 -6 1 0Z"/>
        <path fill="#565a60" d="M-3 -6 -5 -16 5 -16 3 -6Z"/>
        <rect fill="#d5d5ce" stroke="#686b6b" stroke-width="1.2" x="-5" y="-43" width="10" height="28" rx="2"/>
@@ -39,6 +45,7 @@
      </g>
     </g>
    </g>
+   </svg>
   </svg>
   <span class="bubble" aria-hidden="true">Zach Straley</span>
  </div>
