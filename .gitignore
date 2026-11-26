@@ -24,6 +24,10 @@ reference/edit-lab-channel/source-layers/
 *.prproj
 *.drp
 
+# Blender scenes stay on Zach's PC; only the compressed exports the page loads belong here
+*.blend
+*.blend1
+
 # Personal documents: resumes include phone and personal email
 public/resumes/
 work/resume-export/
