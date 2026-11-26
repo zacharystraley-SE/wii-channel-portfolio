@@ -15,6 +15,9 @@ export async function prepareChannel() {
   const finalEl = $('#final'), finalImg = $('#final-imac'), screenEl = $('#screen'), page = screenEl.querySelector('.page');
   const preview = $('#preview'), backBtn = $('#back');
   const DW = 1600, DH = 900, F0 = track.from, F1 = track.to, FPS = track.fps;
+  // Zach's camera path runs F0..F1; the page camera only starts zooming toward the glass for the last stretch,
+  // and Wii Menu plays just that last stretch backwards.
+  const ZOOM_FROM = track.zoomFrom ?? F0, BACK_FROM = track.backFrom ?? F0;
   const corners = f => track.frames[String(Math.min(F1, Math.max(F0, f)))];
   const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
   const show = (el, on) => { el.style.visibility = on ? 'visible' : 'hidden'; };
@@ -23,10 +26,10 @@ export async function prepareChannel() {
   const cam = document.createElement('div'); cam.className = 'yz-cam';
   const swing = document.createElement('video');
   Object.assign(swing, { className: 'yz-swing', muted: true, playsInline: true, preload: 'auto' });
-  swing.src = asset('assets/swing.mp4');
+  swing.src = asset('assets/path.mp4');
   const swingBack = document.createElement('video');
   Object.assign(swingBack, { className: 'yz-swing', muted: true, playsInline: true, preload: 'auto' });
-  swingBack.src = asset('assets/swing-back.mp4'); swingBack.style.visibility = 'hidden';
+  swingBack.src = asset('assets/path-back.mp4'); swingBack.style.visibility = 'hidden';
   const flyTube = createTube(data);
   cam.append(swing, swingBack, flyTube.el);
   scene.replaceChildren(cam);
@@ -133,7 +136,7 @@ export async function prepareChannel() {
     while (!video.ended && !video.paused) {
       const u = Math.min(1, video.currentTime / dur);
       const f = frameAt(u);
-      cam.style.transform = camTf(camAt((f - F0) / (F1 - F0)));   // the page camera follows the rendered camera's progress
+      cam.style.transform = camTf(camAt(Math.min(1, Math.max(0, (f - ZOOM_FROM) / (F1 - ZOOM_FROM)))));
       pinTube(f);
       await nextFrame();
     }
@@ -149,7 +152,10 @@ export async function prepareChannel() {
     if (!reduce) {
       cam.style.transform = camTf(camAt(0)); pinTube(F0);
       swingBack.style.visibility = 'hidden';
-      show(scene, true); cover.style.visibility = 'hidden'; cover.pause();
+      await seek(swing, 0);
+      show(scene, true);
+      await scene.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 350, easing: 'ease-out' }).finished;
+      cover.style.visibility = 'hidden'; cover.pause();
       await runSwing(swing, u => Math.round(F0 + u * (F1 - F0)));
     } else {
       cover.pause();
@@ -180,13 +186,16 @@ export async function prepareChannel() {
     page.replaceChildren(); pageTube = null;
     if (!reduce) {
       swing.style.visibility = 'hidden';
-      await runSwing(swingBack, u => Math.round(F1 - u * (F1 - F0)));
+      await runSwing(swingBack, u => Math.round(F1 - u * (F1 - BACK_FROM)));
+      cover.currentTime = 0; cover.style.visibility = 'inherit';
+      await scene.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, easing: 'ease-in', fill: 'forwards' }).finished;
       swing.style.visibility = 'inherit'; swingBack.style.visibility = 'hidden';
     }
     flyTube.video.pause();
     cover.currentTime = 0; cover.style.visibility = 'inherit';
     if (!reduce) await playVideo(cover);
     show(scene, false);
+    scene.getAnimations().forEach(x => x.cancel());
   }
 
   await Promise.all([
