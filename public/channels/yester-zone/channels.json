@@ -1,0 +1,56 @@
+{
+  "statsAsOf": "2026-11-25",
+  "clipSeconds": 40,
+  "channels": [
+    {
+      "number": 1,
+      "slug": "ohio-theme-park",
+      "title": "Ohio’s Abandoned Theme Park You’re Not Supposed to Find",
+      "youtubeId": "iQRZwD7uRS4",
+      "sourceStart": "2:15",
+      "clip": "clips/ohio-theme-park.mp4",
+      "poster": "clips/ohio-theme-park-poster.webp",
+      "breakout": { "views": 169486, "likes": 3045, "comments": 654 }
+    },
+    {
+      "number": 2,
+      "slug": "catskills",
+      "title": "The Catskills Town That Disappeared Overnight",
+      "youtubeId": "BBbEatZgRBQ",
+      "sourceStart": "5:00",
+      "clip": "clips/catskills.mp4",
+      "poster": "clips/catskills-poster.webp",
+      "breakout": { "views": 209347, "likes": 4198, "comments": 856 }
+    },
+    {
+      "number": 3,
+      "slug": "gifted-program",
+      "title": "The Gifted Program Was Stranger Than You Think",
+      "youtubeId": "5aKA0YQgxZ8",
+      "sourceStart": "0:00",
+      "clip": "clips/gifted-program.mp4",
+      "poster": "clips/gifted-program-poster.webp",
+      "breakout": { "views": 4943, "likes": 152, "comments": 59 }
+    },
+    {
+      "number": 4,
+      "slug": "video-stores",
+      "title": "Why Your Favorite Streaming Service Will Never Replace Blockbuster",
+      "youtubeId": "ppPxVj3IkSs",
+      "sourceStart": "0:00",
+      "clip": "clips/video-stores.mp4",
+      "poster": "clips/video-stores-poster.webp",
+      "breakout": null
+    },
+    {
+      "number": 5,
+      "slug": "indiana-hospital",
+      "title": "The Secret Buried Beneath This Abandoned Indiana Hospital",
+      "youtubeId": "kEJULOxX9JY",
+      "sourceStart": "0:00",
+      "clip": "clips/indiana-hospital.mp4",
+      "poster": "clips/indiana-hospital-poster.webp",
+      "breakout": null
+    }
+  ]
+}
