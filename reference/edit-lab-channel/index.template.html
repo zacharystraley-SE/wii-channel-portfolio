@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Edit Lab Channel Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sorts+Mill+Goudy:ital@0;1&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/*
+VOICE: playful, Wii-menu calm, a working prototype that feels like the real channel
+IDEA: a Wii channel tile that opens into an iMac screen in the lab photo
+PICTURE: the live Edit Lab scene itself; the stand-in home grid only exists to click it
+COLOUR and TYPE: Wii menu greys and white, Edit Lab gold/blue/red/green, Bondi cyan; Sorts Mill Goudy + Nunito
+LAYOUT: grid, then full-screen preview with Wii Menu / Start, then the iMac whose screen holds the channel page
+*/
+:root{color-scheme:light;--ink:#2b3440;--mute:#6b7785;--wii:#e9ecef;--tile:#f7f8f9;--blue:#4a6fb3;--gold:#c9a33b;--red:#c8505a;--green:#3e8f67;--cyan:#38b6cf}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--wii);color:var(--ink);font:16px/1.55 Nunito,system-ui,sans-serif}
+button{font:inherit;cursor:pointer}
+button:focus-visible,.tile:focus-visible{outline:3px solid var(--cyan);outline-offset:3px}
+
+/* ---------- stand-in Wii home ---------- */
+#home{position:fixed;inset:0;display:grid;grid-template-rows:1fr auto;background:
+ repeating-linear-gradient(0deg,#0000 0 3px,#00000006 3px 4px),linear-gradient(#f4f6f7,#e3e7ea)}
+.grid{align-self:center;justify-self:center;width:min(92vw,1180px);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(8px,1.6vw,20px);padding:clamp(12px,3vw,32px)}
+.tile{aspect-ratio:16/9;border-radius:clamp(10px,1.4vw,18px);background:var(--tile);border:clamp(3px,.45vw,6px) solid #d3d8dc;box-shadow:inset 0 2px 6px #0001,0 1px 0 #fff;position:relative;overflow:hidden}
+.tile.empty::after{content:"";position:absolute;inset:0;background:radial-gradient(#fff0 40%,#0000000a),repeating-linear-gradient(90deg,#0000 0 6px,#00000008 6px 7px)}
+.tile.live{border-color:#bfe6ef;cursor:pointer;background:#cfe3ea}
+.tile.live:hover{border-color:var(--cyan)}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px max(4vw,16px) 18px;color:var(--mute);font-size:14px}
+.bar b{color:var(--ink);font-weight:700}
+.hint{background:#fff;border:1px solid #d3d8dc;border-radius:999px;padding:6px 14px}
+
+/* ---------- stage: the channel scene ---------- */
+#stage{position:fixed;overflow:hidden;z-index:5;border-radius:14px;background:#cfe3ea;visibility:hidden;contain:strict}
+#stage video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#scene{position:absolute;left:0;top:0;width:2560px;height:1440px;transform-origin:0 0;visibility:hidden}
+#scene .el{position:absolute;display:block;will-change:transform,opacity;pointer-events:none;user-select:none}
+#scene .grp{position:absolute;will-change:transform}
+#scene .grp img{position:absolute;left:0;top:0;width:100%;height:100%}
+
+/* ---------- preview: the expanded channel card, Wii style ---------- */
+#preview{position:fixed;left:0;right:0;bottom:0;z-index:7;display:flex;justify-content:space-between;gap:16px;
+ padding:clamp(14px,3vh,30px) clamp(16px,6vw,90px) clamp(16px,4vh,40px);visibility:hidden;opacity:0;
+ background:linear-gradient(#fff0,#ffffffb8 45%,#ffffffe6)}
+.wiibtn{min-width:clamp(150px,22vw,300px);min-height:clamp(48px,8vh,72px);border-radius:999px;border:3px solid #c9d1d6;background:linear-gradient(#fff,#eef2f4);
+ color:#7b858d;font:700 clamp(17px,2.2vw,24px)/1 Nunito,sans-serif;box-shadow:0 3px 0 #b9c2c8,0 8px 20px #0000001f}
+.wiibtn:hover{border-color:var(--cyan);color:#2f8fa6}
+.wiibtn:active{transform:translateY(2px);box-shadow:0 1px 0 #b9c2c8}
+
+/* ---------- final state: the sharp iMac with the channel page on its screen ---------- */
+#final{position:fixed;inset:0;z-index:6;visibility:hidden;overflow:hidden;background:radial-gradient(75% 85% at 50% 50%,#0000 55%,#0b3a4a40)}
+#final img{position:absolute;max-width:none;user-select:none;pointer-events:none}
+.screen{position:absolute;overflow:hidden;border-radius:1.2% / 1.6%;background:#f4f6f8;
+ box-shadow:inset 0 0 0 1px #0000004d,inset 0 0 40px #00000026}
+.screen::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+ background:radial-gradient(130% 90% at 50% 0%,#ffffff22,#fff0 45%),radial-gradient(120% 120% at 50% 50%,#0000 72%,#0000002a)}
+.page{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden}
+.blank{min-height:100%;display:grid;place-content:center;gap:14px;text-align:center;padding:24px;
+ background:repeating-linear-gradient(0deg,#0000 0 2px,#00000005 2px 3px),linear-gradient(#fbfcfd,#eef2f5)}
+.logo-type{font:400 clamp(34px,5.5vw,72px)/1 "Sorts Mill Goudy",Georgia,serif;margin:0;letter-spacing:-.5px}
+.logo-type small{font-size:.42em;color:var(--green);margin-right:.25em;font-style:italic}
+.E{color:var(--gold)}.d,.lab{color:var(--blue)}.i{color:var(--red)}.t{color:var(--green)}
+.blank p{margin:0;color:var(--mute)}
+.dims{font:700 14px/1 Nunito,sans-serif;color:#1d6f84;background:#e6f6fa;border-radius:999px;padding:8px 14px;justify-self:center}
+.back{position:fixed;left:clamp(12px,2.4vmin,26px);bottom:clamp(12px,2.4vmin,26px);z-index:8;display:flex;align-items:center;gap:8px;min-height:44px;padding:8px 18px 8px 10px;border-radius:999px;border:2px solid #cfd8de;background:#fff;color:var(--ink);font-weight:700;box-shadow:0 4px 14px #0002;visibility:hidden}
+.back span{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--cyan);color:#fff;font-size:15px}
+@media(max-width:700px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.bar .hint{display:none}.wiibtn{min-width:0;flex:1}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div id="home">
+  <div class="grid" id="grid"></div>
+  <div class="bar"><span><b>Stand-in Wii menu.</b> Your real home screen replaces this.</span><span class="hint" id="hint">Loading the channel…</span></div>
+</div>
+
+<div id="stage" aria-hidden="true">
+  <video id="loop" src="assets/loop.mp4" muted loop playsinline autoplay preload="auto"></video>
+  <div id="scene"></div>
+</div>
+
+<div id="preview" aria-label="Channel preview">
+  <button class="wiibtn" id="pv-menu" type="button">Wii Menu</button>
+  <button class="wiibtn" id="pv-start" type="button">Start</button>
+</div>
+
+<div id="final" role="dialog" aria-label="Zach's Edit Lab channel" aria-hidden="true">
+  <img id="final-imac" alt="">
+  <div class="screen" id="screen">
+    <!-- The channel website goes inside .page. It scrolls on its own; the iMac stays put. -->
+    <div class="page" id="page">
+      <div class="blank">
+        <h1 class="logo-type"><small>Zach's</small><span class="E">E</span><span class="d">d</span><span class="i">i</span><span class="t">t</span> <span class="lab">Lab</span></h1>
+        <p>The channel website goes on this screen.</p>
+        <span class="dims" id="dims">Screen area</span>
+      </div>
+    </div>
+  </div>
+</div>
+<button class="back" id="back" type="button"><span aria-hidden="true">&#8592;</span>Wii Menu</button>
+
+<script>
+{
+const MAN = __MANIFEST__;
+const DW = 2560, DH = 1440, DUR = 10;
+
+/* ===== loop math: a 1:1 port of the video render, so the page can pick up from any frame ===== */
+const G = 3800, T0 = 0.8, Y0 = -260, HEAD_X = 1195, HEAD_Y = 744, GROUND = 1127.5, R = 200, RX = 1653.5, RY = 1127.5;
+const tFall = Math.sqrt(2 * (HEAD_Y - Y0) / G), vImp = G * tFall, T1 = T0 + tFall;
+const VY1 = -0.42 * vImp, VX1 = 330;
+const tF1 = (-VY1 + Math.sqrt(VY1 * VY1 + 4 * (G / 2) * (GROUND - HEAD_Y))) / G;
+const T2 = T1 + tF1, X2 = HEAD_X + VX1 * tF1;
+const VY2 = -0.28 * (VY1 + G * tF1), VX2 = 270, tF2 = -2 * VY2 / G, T3 = T2 + tF2, X3 = X2 + VX2 * tF2;
+const V_ROLL = 250, A_ROLL = 15, X_EXIT = 2790;
+const T4 = T3 + (V_ROLL - Math.sqrt(V_ROLL ** 2 - 2 * A_ROLL * (X_EXIT - X3))) / A_ROLL;
+const W_FL = 5, TH2 = W_FL * tF1, TH3 = TH2 + VX2 / R * tF2, BACK0 = T4 + 0.40, BACK1 = T4 + 0.55;
+const smooth = (a, b, x) => { const t = Math.min(Math.max((x - a) / (b - a), 0), 1); return t * t * (3 - 2 * t); };
+const mod = (a, n) => ((a % n) + n) % n;
+
+function logoAt(t) {
+  if (t < T0 || t >= T4) return null;
+  if (t < T1) { const u = t - T0; return [HEAD_X, Y0 + G / 2 * u * u, 0]; }
+  if (t < T2) { const u = t - T1; return [HEAD_X + VX1 * u, HEAD_Y + VY1 * u + G / 2 * u * u, W_FL * u]; }
+  if (t < T3) { const u = t - T2; return [X2 + VX2 * u, GROUND + VY2 * u + G / 2 * u * u, TH2 + VX2 / R * u]; }
+  const u = t - T3, x = X3 + V_ROLL * u - A_ROLL / 2 * u * u;
+  return [x, GROUND, TH3 + (x - X3) / R];
+}
+function bearAt(t) {
+  if (t < T1) return [0, 1];
+  const u = t - T1;
+  return [1 - smooth(BACK0, BACK1, t), u < 0.5 ? 1 - 0.03 * Math.exp(-u / 0.06) : 1];
+}
+function cloudAt(c, t) {
+  const tau = mod(t - c.s, DUR);
+  const env = c.kind === 'in' ? smooth(0, 2, tau) * (1 - smooth(8.8, DUR, tau)) : 1 - smooth(7.8, DUR, tau);
+  return [c.o0 + c.v * tau, env];
+}
+function bankAt(k, t) {
+  const tau = mod(t + k, DUR);
+  return [-40 * (tau - DUR / 2), Math.sin(Math.PI * tau / DUR) ** 2];
+}
+
+/* ===== build the scene from the manifest (stacking order matches the video) ===== */
+const $ = s => document.querySelector(s);
+const stage = $('#stage'), scene = $('#scene'), video = $('#loop'), finalEl = $('#final'), preview = $('#preview'), backBtn = $('#back'), home = $('#home');
+const byId = Object.fromEntries(MAN.elements.map(e => [e.id, e]));
+const nodes = [];  // {node, e, base:{dx,dy,r,sx,sy,op}, kind}
+function img(e) {
+  const n = document.createElement('img');
+  n.src = e.src; n.alt = ''; n.className = 'el'; n.decoding = 'async';
+  Object.assign(n.style, { left: e.x + 'px', top: e.y + 'px', width: e.w + 'px', height: e.h + 'px' });
+  return n;
+}
+function add(node, e, kind, extra) {
+  scene.appendChild(node);
+  const o = Object.assign({ node, e, kind, base: { dx: 0, dy: 0, r: 0, sx: 1, sy: 1, op: 1 } }, extra);
+  nodes.push(o); return o;
+}
+add(img(byId.bg), byId.bg, 'bg');
+const banks = [0, 5].map(k => add(img(byId['cloud-bank']), byId['cloud-bank'], 'cloud', { bankK: k }));
+const clouds = MAN.elements.filter(e => e.role === 'cloud').map(e => add(img(e), e, 'cloud', { c: e }));
+MAN.elements.filter(e => e.role === 'title').sort((a, b) => a.order - b.order).forEach(e => add(img(e), e, 'fall', { delay: 90 + e.order * 45 }));
+const logo = add(img(byId.logo), byId.logo, 'fall', { delay: 260, logo: true });
+const overlay = add(img(byId.overlay), byId.overlay, 'fall', { delay: 520, heavy: true });
+const bgrp = document.createElement('div'); bgrp.className = 'grp';
+const be = byId.bear;
+Object.assign(bgrp.style, { left: be.x + 'px', top: be.y + 'px', width: be.w + 'px', height: be.h + 'px', transformOrigin: '50% 100%' });
+const bDef = document.createElement('img'), bTilt = document.createElement('img');
+bDef.src = be.src; bTilt.src = byId['bear-tilt'].src; bDef.alt = bTilt.alt = '';
+bgrp.append(bDef, bTilt);
+const bear = add(bgrp, be, 'fall', { delay: 330 });
+MAN.elements.filter(e => e.role === 'caption').forEach(e => add(img(e), e, 'fall', { delay: e.order * 40 }));
+// optional sharp iMac photo swapped in mid-zoom: set MAN.hires = {src, x, y, w, h} (design units)
+let hires = null;
+if (MAN.hires) { hires = img(MAN.hires); hires.className = ''; Object.assign(hires.style, { position: 'absolute', opacity: 0 }); scene.appendChild(hires); }
+
+const tf = b => `translate(${b.dx}px,${b.dy}px) rotate(${b.r}rad) scale(${b.sx},${b.sy})`;
+function applyState(t) {
+  for (const n of nodes) n.base = { dx: 0, dy: 0, r: 0, sx: 1, sy: 1, op: 1 };
+  banks.forEach(n => { const [dx, w] = bankAt(n.bankK, t); n.base.dx = dx; n.base.op = w; });
+  clouds.forEach(n => { const [dx, env] = cloudAt(n.c, t); n.base.dx = dx; n.base.op = env; });
+  const L = logoAt(t);
+  if (L) { logo.base.dx = L[0] - RX; logo.base.dy = L[1] - RY; logo.base.r = L[2]; } else logo.base.op = 0;
+  const [mix, sq] = bearAt(t);
+  bDef.style.opacity = 1 - mix; bTilt.style.opacity = mix; bear.base.sy = sq;
+  for (const n of nodes) { n.node.getAnimations().forEach(a => a.cancel()); n.node.style.transform = tf(n.base); n.node.style.opacity = n.base.op; }
+}
+
+/* ===== camera: cover-fit the 2560x1440 scene into the stage, plus zoom ===== */
+let mode = 'home', busy = false;
+const vw = () => innerWidth, vh = () => innerHeight;
+const fitScale = (W, H) => Math.max(W / DW, H / DH);
+const cam = (s, tx, ty) => `translate(${tx}px,${ty}px) scale(${s})`;
+function fitCam(W, H) { const s = fitScale(W, H); return [s, (W - DW * s) / 2, (H - DH * s) / 2]; }
+const [sx0, sy0, sx1, sy1] = MAN.zoom.screen, P = [(sx0 + sx1) / 2, (sy0 + sy1) / 2];
+// Final framing: the iMac's screen fills ~86% of the window height (or ~92% of its width on narrow screens),
+// so the bezel crops off the window edges and the page on the screen is large enough to read.
+const SCREEN_H = 0.86, SCREEN_W = 0.92;
+function zoomEnd(W, H) {
+  const s = Math.min(H * SCREEN_H / (sy1 - sy0), W * SCREEN_W / (sx1 - sx0));
+  return [s, W / 2 - s * P[0], H / 2 - s * P[1]];
+}
+function placeOnTile() {
+  const r = document.querySelector('.tile.live').getBoundingClientRect();
+  Object.assign(stage.style, { left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px' });
+}
+
+/* ===== final state: lay out the sharp iMac and its screen in real pixels (crisp, not scaled by the camera) ===== */
+const finalImg = $('#final-imac'), screenEl = $('#screen'), dims = $('#dims');
+if (MAN.hires) finalImg.src = MAN.hires.src;
+function layoutFinal() {
+  if (!MAN.hires) return;
+  const W = vw(), H = vh(), [s, tx, ty] = zoomEnd(W, H), h = MAN.hires;
+  const L = tx + s * h.x, T = ty + s * h.y, S = s * h.w;      // iMac image rect in viewport px
+  Object.assign(finalImg.style, { left: L + 'px', top: T + 'px', width: S + 'px', height: S + 'px' });
+  const k = S / h.px[0], [a, b, c, d] = h.screen_px, inset = 3 * k;
+  const r = { left: L + a * k + inset, top: T + b * k + inset, width: (c - a) * k - 2 * inset, height: (d - b) * k - 2 * inset };
+  Object.assign(screenEl.style, { left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px' });
+  document.documentElement.style.setProperty('--screen-w', Math.round(r.width) + 'px');
+  document.documentElement.style.setProperty('--screen-h', Math.round(r.height) + 'px');
+  dims.textContent = `Screen area at this window size: ${Math.round(r.width)} × ${Math.round(r.height)} px`;
+}
+
+/* ===== transition helpers ===== */
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const rnd = (a, b) => a + Math.random() * (b - a);
+const show = (el, on) => { el.style.visibility = on ? 'visible' : 'hidden'; };
+function fallKF(n) {
+  const b = n.base, g = 5200, vy0 = n.heavy ? -120 : -rnd(220, 420), vx = rnd(-70, 70), w = (n.heavy ? rnd(-0.12, 0.12) : rnd(-1.4, 1.4));
+  const D = DH + 60 - (n.e.y + b.dy);
+  const T = (-vy0 + Math.sqrt(vy0 * vy0 + 2 * g * D)) / g, kf = [];
+  for (let i = 0; i <= 16; i++) {
+    const u = T * i / 16;
+    kf.push({ transform: tf({ ...b, dx: b.dx + vx * u, dy: b.dy + vy0 * u + g / 2 * u * u, r: b.r + w * u }), opacity: b.op });
+  }
+  return [kf, T * 1000];
+}
+function suckKF(n) {
+  const b = n.base, cx = n.e.x + n.e.w / 2 + b.dx, dir = cx < DW / 2 ? -1 : 1;
+  return [[{ transform: tf(b), opacity: b.op },
+           { transform: tf({ ...b, dx: b.dx + dir * 600, sx: 1.08 }), opacity: b.op, offset: .45 },
+           { transform: tf({ ...b, dx: b.dx + dir * (DW + n.e.w), sx: 1.45 }), opacity: 0 }],
+          { duration: 700, easing: 'cubic-bezier(.6,0,.9,.4)' }];
+}
+function zoomKF(W, H, reverse) {
+  const [s0, x0, y0] = fitCam(W, H), [s1] = zoomEnd(W, H), c = [W / 2, H / 2];
+  const p0 = [x0 + s0 * P[0], y0 + s0 * P[1]], kf = [], N = 40;
+  const ease = u => u < .5 ? 4 * u * u * u : 1 - (-2 * u + 2) ** 3 / 2;   // log-scale zoom, slow-fast-slow
+  const panE = u => 1 - (1 - Math.min(1, u * 1.7)) ** 3;                 // pan finishes early: we dive straight in
+  for (let i = 0; i <= N; i++) {
+    const u = i / N, s = s0 * (s1 / s0) ** ease(u);
+    const p = [p0[0] + (c[0] - p0[0]) * panE(u), p0[1] + (c[1] - p0[1]) * panE(u)];
+    kf.push({ transform: cam(s, p[0] - s * P[0], p[1] - s * P[1]) });
+  }
+  return reverse ? kf.reverse() : kf;
+}
+const blurKF = [{ filter: 'blur(0px)' }, { filter: 'blur(1px)', offset: .3 }, { filter: 'blur(9px)', offset: .55 }, { filter: 'blur(0px)', offset: .85 }, { filter: 'blur(0px)' }];
+const hiresIn = [{ opacity: 0 }, { opacity: 0, offset: .4 }, { opacity: 1, offset: .6 }, { opacity: 1 }];
+function stageTo(fromRect, toRect, dur) {
+  const k = r => ({ left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px', borderRadius: r.radius + 'px' });
+  return stage.animate([k(fromRect), k(toRect)], { duration: reduce ? 1 : dur, easing: 'cubic-bezier(.3,.7,.2,1)', fill: 'forwards' }).finished;
+}
+const tileRect = () => { const r = document.querySelector('.tile.live').getBoundingClientRect(); return { left: r.left, top: r.top, width: r.width, height: r.height, radius: 14 }; };
+const fullRect = () => ({ left: 0, top: 0, width: vw(), height: vh(), radius: 0 });
+function pinStage(r) { stage.getAnimations().forEach(a => a.cancel()); Object.assign(stage.style, { left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px', borderRadius: r.radius + 'px' }); }
+
+/* ===== 1. select: the tile grows into the channel preview; the loop keeps playing ===== */
+async function openPreview() {
+  if (busy || mode !== 'home') return; busy = true;
+  await stageTo(tileRect(), fullRect(), 520); pinStage(fullRect());
+  show(preview, true);
+  await preview.animate([{ opacity: 0, transform: 'translateY(20px)' }, { opacity: 1, transform: 'none' }], { duration: reduce ? 1 : 300, fill: 'forwards' }).finished;
+  mode = 'preview'; busy = false; $('#pv-start').focus({ preventScroll: true });
+}
+async function closePreview() {
+  if (busy || mode !== 'preview') return; busy = true;
+  await preview.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, fill: 'forwards' }).finished; show(preview, false);
+  await stageTo(fullRect(), tileRect(), 480); placeOnTile(); stage.style.borderRadius = '14px';
+  mode = 'home'; busy = false;
+}
+
+/* ===== 2. Start: hand off from the video to live layers on the same frame, break apart, zoom into the iMac ===== */
+async function startChannel() {
+  if (busy || mode !== 'preview') return; busy = true;
+  preview.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 180, fill: 'forwards' }).finished.then(() => show(preview, false));
+  const W = vw(), H = vh();
+  applyState(video.currentTime % DUR);
+  const [s, x, y] = fitCam(W, H); scene.style.transform = cam(s, x, y);
+  show(scene, true); video.style.visibility = 'hidden'; video.pause();
+  if (!reduce) {
+    let i = 0;
+    for (const n of nodes) {
+      if (n.kind === 'cloud') { const [kf, o] = suckKF(n); n.node.animate(kf, { ...o, delay: 120 + 55 * i++, fill: 'forwards' }); }
+      if (n.kind === 'fall' && n.base.op > 0) { const [kf, d] = fallKF(n); n.node.animate(kf, { duration: d, delay: n.delay, easing: 'linear', fill: 'forwards' }); }
+    }
+    await wait(1050);
+    const zoom = scene.animate(zoomKF(W, H), { duration: 1500, easing: 'linear', fill: 'forwards' });
+    stage.animate(blurKF, { duration: 1500, easing: 'linear' });
+    if (hires) hires.animate(hiresIn, { duration: 1500, fill: 'forwards' });
+    await zoom.finished;
+  }
+  // swap to the crisp, real-pixel iMac (same framing as the camera's last frame)
+  layoutFinal(); show(finalEl, true); finalEl.setAttribute('aria-hidden', 'false');
+  screenEl.animate([{ opacity: 0, filter: 'brightness(1.8)' }, { opacity: 1, filter: 'brightness(1)' }], { duration: reduce ? 1 : 450, easing: 'ease-out' });
+  if (reduce) await finalEl.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 250 }).finished;
+  show(backBtn, true);   // the zoomed lab stays behind the iMac, exactly as the zoom's last frame left it
+  backBtn.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300 });
+  mode = 'channel'; busy = false; backBtn.focus({ preventScroll: true });
+}
+
+/* ===== 3. Wii Menu from inside the channel: zoom out, everything drops back in, back onto the tile ===== */
+async function closeChannel() {
+  if (busy || mode !== 'channel') return; busy = true;
+  const W = vw(), H = vh();
+  show(backBtn, false);
+  show(stage, true); show(finalEl, false); finalEl.setAttribute('aria-hidden', 'true');
+  if (!reduce) {
+    const z = scene.animate(zoomKF(W, H, true), { duration: 1100, easing: 'linear', fill: 'forwards' });
+    if (hires) hires.animate([{ opacity: 1 }, { opacity: 1, offset: .4 }, { opacity: 0, offset: .6 }, { opacity: 0 }], { duration: 1100, fill: 'forwards' });
+    stage.animate(blurKF, { duration: 1100, easing: 'linear' });
+    await z.finished;
+  }
+  if (hires) { hires.getAnimations().forEach(a => a.cancel()); hires.style.opacity = 0; }
+  applyState(0);
+  const [s, x, y] = fitCam(W, H); scene.getAnimations().forEach(a => a.cancel()); scene.style.transform = cam(s, x, y);
+  if (!reduce) {
+    const anims = [];
+    nodes.filter(n => n.kind === 'fall' && n.base.op > 0).reverse().forEach((n, k) => {
+      const b = n.base, h = n.e.y + n.e.h + 80, r0 = n.heavy ? 0 : rnd(-.5, .5);
+      anims.push(n.node.animate([
+        { transform: tf({ ...b, dy: b.dy - h, r: r0 }), easing: 'cubic-bezier(.45,0,.9,.55)' },
+        { transform: tf(b), offset: .8, easing: 'cubic-bezier(.2,.6,.4,1)' },
+        { transform: tf({ ...b, dy: b.dy - (n.heavy ? 6 : 22) }), offset: .9, easing: 'cubic-bezier(.6,0,.9,.5)' },
+        { transform: tf(b) }], { duration: n.heavy ? 650 : 560, delay: k * 45, fill: 'backwards' }).finished);
+    });
+    [...banks, ...clouds].forEach((n, k) => {
+      const b = n.base, dir = n.e.x + n.e.w / 2 + b.dx < DW / 2 ? -1 : 1;
+      anims.push(n.node.animate([{ transform: tf({ ...b, dx: b.dx + dir * 1400 }), opacity: 0 }, { transform: tf(b), opacity: b.op }],
+        { duration: 900, delay: 200 + k * 50, easing: 'cubic-bezier(.2,.7,.2,1)', fill: 'backwards' }).finished);
+    });
+    await Promise.all(anims);
+  }
+  video.currentTime = 0; video.style.visibility = 'visible'; await video.play().catch(() => {});
+  show(scene, false);
+  await stageTo(fullRect(), tileRect(), 480); placeOnTile(); stage.style.borderRadius = '14px';
+  mode = 'home'; busy = false;
+}
+
+/* ===== home grid + wiring ===== */
+const grid = $('#grid');
+grid.innerHTML = Array.from({ length: 12 }, (_, i) => i === 0
+  ? '<button class="tile live" type="button" aria-label="Open Zach\'s Edit Lab channel"></button>'
+  : '<div class="tile empty" aria-hidden="true"></div>').join('');
+const live = document.querySelector('.tile.live');
+placeOnTile(); show(stage, true);
+addEventListener('resize', () => {
+  if (mode === 'home') placeOnTile();
+  else pinStage(fullRect());
+  if (mode === 'channel') layoutFinal();
+});
+let ready = false;
+Promise.all([...scene.querySelectorAll('img'), bDef, bTilt, finalImg].map(n => n.decode().catch(() => {}))).then(() => {
+  ready = true; $('#hint').textContent = 'Click the Edit Lab channel';
+});
+const go = () => { if (ready && mode === 'home') openPreview(); };
+live.addEventListener('click', go);
+stage.addEventListener('click', go);
+$('#pv-start').addEventListener('click', startChannel);
+$('#pv-menu').addEventListener('click', closePreview);
+backBtn.addEventListener('click', closeChannel);
+addEventListener('keydown', e => { if (e.key === 'Escape') { if (mode === 'channel') closeChannel(); else if (mode === 'preview') closePreview(); } });
+video.play().catch(() => {});
+}
+</script>
+</body>
+</html>

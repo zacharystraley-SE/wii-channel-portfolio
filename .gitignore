@@ -1,0 +1,36 @@
+# Dependencies and build output (none today, kept out if added later)
+node_modules/
+dist/
+build/
+.cache/
+
+# Secrets and local environment
+.env
+.env.*
+*.pem
+*.key
+
+# macOS / editor clutter
+.DS_Store
+Thumbs.db
+*.swp
+
+# Source media kept on the Mac only (large originals and layered exports)
+/Bondi Blue iMac G3 - Front - 4096.png
+reference/edit-lab-channel/source-layers/
+*.psd
+*.psb
+*.mov
+*.prproj
+*.drp
+
+# Personal documents: resumes include phone and personal email
+public/resumes/
+work/resume-export/
+
+# Local scratch from test runs (logs, pids, screenshots, frame dumps)
+work/*.log
+work/*.pid
+work/*.png
+work/*.jpg
+work/grain-review/

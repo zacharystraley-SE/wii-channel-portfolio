@@ -1,0 +1,50 @@
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;overflow:hidden;background:#151719;color:#56585a;font:16px/1.35 "Trebuchet MS",Arial,sans-serif}
+button{font:inherit}button:focus-visible,.mail:focus-visible,.page:focus-visible{outline:3px solid #1596b9;outline-offset:2px}
+#home{position:fixed;inset:1.2vh 0;overflow:hidden;background:repeating-linear-gradient(0deg,#eee 0px,#eee 2px,#e9e9e9 3px,#eee 5px);transition:filter .42s;animation:power-on .3s both}
+@keyframes power-on{from{opacity:0}to{opacity:1}}
+#home.departing{filter:brightness(.13)}
+.wall{position:absolute;inset:8.6% 8.4% 30%;--gx:1.02vw;--gy:1.6vh}
+#grid,.edge{height:100%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:var(--gy) var(--gx)}
+.edge{position:absolute;left:calc(100% + var(--gx));top:0;width:calc((100% - 3 * var(--gx))/4);grid-template-columns:1fr}
+.tile{position:relative;min-width:0;border:2px solid #bdbdc0;border-radius:5% / 12%;background-color:#d8d8d8;box-shadow:inset 0 1px 3px #7777,0 1px 1px #fff}
+.tile.empty{
+  overflow:hidden;
+  display:grid;
+  place-items:center;
+  background:
+    repeating-linear-gradient(0deg,transparent 0 2px,#50555a09 2px 3px),
+    radial-gradient(ellipse at 50% 60%,#dededf,#d7d7d8 74%,#d0d0d1);
+}
+.tile.empty::before{
+  content:"Wii";
+  color:#8b8c9015;
+  font:700 clamp(14px,2.2vw,36px)/1 Arial,sans-serif;
+  letter-spacing:-.08em;
+}
+.tile.empty canvas{
+  position:absolute;inset:0;width:100%;height:100%;
+  pointer-events:none;opacity:.038;
+}
+.tile.live{padding:0;background:#e8efec url(../channels/edit-lab/poster.webp) center/cover}
+.tile.live:hover,.tile.live:focus-visible,.name-tag:hover{outline:3px solid #55bddd;outline-offset:0;z-index:2}
+.name-tag{grid-row:2;grid-column:2;background:#fff}
+.name-tag svg{display:block;width:100%;height:100%;position:absolute;inset:0;border-radius:inherit;overflow:hidden}
+.signature-still{display:none}
+@media(prefers-reduced-motion:reduce){.signature-motion{display:none}.signature-still{display:inline}}
+.bubble{position:absolute;top:101%;left:50%;transform:translateX(-50%);white-space:nowrap;background:#fff;color:#555;font-size:clamp(13px,2vw,27px);line-height:1.4;padding:0 .9em;border-radius:1em;border:1px solid #b7b7b7;box-shadow:0 2px 2px #7775;opacity:0;pointer-events:none;transition:opacity .12s}
+.tile:focus-visible .bubble,.tile:hover .bubble{opacity:1;transition-delay:.18s}
+.dock{position:absolute;inset:72.1% 0 0;pointer-events:none;text-align:center}
+.dock-shape{width:100%;height:100%;position:absolute;inset:0}
+.wii,.mail{position:absolute;bottom:25%;width:min(9vw,17vh);aspect-ratio:1;display:grid;place-items:center;border:3px solid #78c5db;border-radius:50%;background:linear-gradient(145deg,#fff,#e8e9eb 52%,#bdc2c6);box-shadow:1px 4px 5px #90969e88,inset 1px 1px 4px white;color:#9ca2a8;font:bold min(3vw,6vh)/1 Arial}
+.wii{left:4.6%}.mail{right:4.6%;pointer-events:auto;cursor:inherit}.mail i{position:relative;width:56%;height:32%;overflow:hidden;background:#a0a7ac;border-radius:3px}.mail i::after{content:"";position:absolute;width:76%;height:145%;top:-110%;left:11%;transform:rotate(45deg);border:2px solid white}
+.clock{position:absolute;inset:0 25%;display:flex;align-items:center;flex-direction:column;color:#838388}
+.clock-intro,#digits{position:absolute;top:0;height:35%;display:flex;align-items:center;justify-content:center}
+.clock-intro{color:#59b5d4;font-size:clamp(16px,3.2vw,50px);animation:title-out .35s 3s both}
+#digits{gap:.2vw;animation:clock-in .35s 3s both}
+#digits svg{height:78%;width:auto;fill:#8c8c8e}
+#date{position:absolute;top:43%;font-size:min(3.6vw,6.5vh);letter-spacing:.04em;line-height:1}
+@keyframes title-out{to{opacity:0}}@keyframes clock-in{from{opacity:0}}
+@media(pointer:fine){#home,#home button,#preview button,#back{cursor:url(player-one.png) 16 4,pointer}}
+@media(orientation:portrait){.wall{inset:17% 6% 27%;--gx:2vw;--gy:1vh}#grid{grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(4,1fr)}.edge{display:none}.dock{top:77%}.wii,.mail{width:13vw}#date{font-size:5.3vw}.clock-intro{font-size:6vw}.tile{border-radius:8% / 12%}}
+@media(prefers-reduced-motion:reduce){#home,#digits,.clock-intro{animation:none} .clock-intro{display:none}.tile.empty canvas{visibility:hidden}#home{transition:none}}

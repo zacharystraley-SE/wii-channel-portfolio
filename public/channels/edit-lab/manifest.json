@@ -1,0 +1,271 @@
+{
+ "design": [
+  2560,
+  1440
+ ],
+ "elements": [
+  {
+   "id": "bg",
+   "src": "assets/bg.webp",
+   "x": 0,
+   "y": 0,
+   "w": 2560,
+   "h": 1440,
+   "role": "bg"
+  },
+  {
+   "id": "cloud-bank",
+   "src": "assets/cloud-bank.webp",
+   "x": 17,
+   "y": 362,
+   "w": 2524,
+   "h": 1044,
+   "role": "bank"
+  },
+  {
+   "id": "cloud-03",
+   "src": "assets/cloud-03.webp",
+   "x": 464,
+   "y": 845,
+   "w": 1151,
+   "h": 554,
+   "role": "cloud",
+   "s": 0.0,
+   "o0": 0.0,
+   "v": -175,
+   "kind": "in"
+  },
+  {
+   "id": "cloud-08",
+   "src": "assets/cloud-08.webp",
+   "x": 855,
+   "y": 820,
+   "w": 1372,
+   "h": 620,
+   "role": "cloud",
+   "s": 1.7,
+   "o0": -2213.0,
+   "v": 190,
+   "kind": "out"
+  },
+  {
+   "id": "cloud-06",
+   "src": "assets/cloud-06.webp",
+   "x": 1663,
+   "y": 990,
+   "w": 897,
+   "h": 450,
+   "role": "cloud",
+   "s": 3.3,
+   "o0": 0.0,
+   "v": 120,
+   "kind": "in"
+  },
+  {
+   "id": "cloud-05",
+   "src": "assets/cloud-05.webp",
+   "x": 795,
+   "y": 912,
+   "w": 1151,
+   "h": 528,
+   "role": "cloud",
+   "s": 5.0,
+   "o0": 1752.0,
+   "v": -185,
+   "kind": "out"
+  },
+  {
+   "id": "cloud-04",
+   "src": "assets/cloud-04.webp",
+   "x": 0,
+   "y": 820,
+   "w": 968,
+   "h": 505,
+   "role": "cloud",
+   "s": 6.6,
+   "o0": 0.0,
+   "v": -130,
+   "kind": "in"
+  },
+  {
+   "id": "cloud-07",
+   "src": "assets/cloud-07.webp",
+   "x": 213,
+   "y": 959,
+   "w": 1151,
+   "h": 481,
+   "role": "cloud",
+   "s": 8.3,
+   "o0": -1352.0,
+   "v": 170,
+   "kind": "out"
+  },
+  {
+   "id": "title-sticker",
+   "src": "assets/title-sticker.webp",
+   "x": 294,
+   "y": 53,
+   "w": 401,
+   "h": 829,
+   "role": "title",
+   "order": 0
+  },
+  {
+   "id": "title-E",
+   "src": "assets/title-E.webp",
+   "x": 641,
+   "y": 565,
+   "w": 271,
+   "h": 336,
+   "role": "title",
+   "order": 1
+  },
+  {
+   "id": "title-d",
+   "src": "assets/title-d.webp",
+   "x": 918,
+   "y": 545,
+   "w": 244,
+   "h": 360,
+   "role": "title",
+   "order": 2
+  },
+  {
+   "id": "title-i",
+   "src": "assets/title-i.webp",
+   "x": 1167,
+   "y": 595,
+   "w": 121,
+   "h": 307,
+   "role": "title",
+   "order": 3
+  },
+  {
+   "id": "title-t",
+   "src": "assets/title-t.webp",
+   "x": 1287,
+   "y": 651,
+   "w": 153,
+   "h": 252,
+   "role": "title",
+   "order": 4
+  },
+  {
+   "id": "title-L",
+   "src": "assets/title-L.webp",
+   "x": 1483,
+   "y": 536,
+   "w": 277,
+   "h": 357,
+   "role": "title",
+   "order": 5
+  },
+  {
+   "id": "title-a",
+   "src": "assets/title-a.webp",
+   "x": 1749,
+   "y": 667,
+   "w": 205,
+   "h": 230,
+   "role": "title",
+   "order": 6
+  },
+  {
+   "id": "title-b",
+   "src": "assets/title-b.webp",
+   "x": 1927,
+   "y": 516,
+   "w": 254,
+   "h": 382,
+   "role": "title",
+   "order": 7
+  },
+  {
+   "id": "logo",
+   "src": "assets/logo.webp",
+   "x": 1414,
+   "y": 888,
+   "w": 480,
+   "h": 480,
+   "role": "logo",
+   "cx": 1653.5,
+   "cy": 1127.5
+  },
+  {
+   "id": "overlay",
+   "src": "assets/overlay.webp",
+   "x": 0,
+   "y": 0,
+   "w": 2560,
+   "h": 1440,
+   "role": "overlay"
+  },
+  {
+   "id": "bear",
+   "src": "assets/bear.webp",
+   "x": 965,
+   "y": 932,
+   "w": 308,
+   "h": 430,
+   "role": "bear"
+  },
+  {
+   "id": "bear-tilt",
+   "src": "assets/bear-tilt.webp",
+   "x": 965,
+   "y": 932,
+   "w": 308,
+   "h": 430,
+   "role": "bear-tilt"
+  },
+  {
+   "id": "caption-text",
+   "src": "assets/caption-text.webp",
+   "x": 641,
+   "y": 973,
+   "w": 347,
+   "h": 31,
+   "role": "caption",
+   "order": 0
+  },
+  {
+   "id": "caption-arrow",
+   "src": "assets/caption-arrow.webp",
+   "x": 814,
+   "y": 1014,
+   "w": 190,
+   "h": 87,
+   "role": "caption",
+   "order": 1
+  }
+ ],
+ "zoom": {
+  "screen": [
+   937.37,
+   397.0,
+   1075.63,
+   500.0
+  ]
+ },
+ "loop": {
+  "duration": 10.0,
+  "fps": 60
+ },
+ "hires": {
+  "src": "assets/imac.webp",
+  "x": 910.0,
+  "y": 368.85,
+  "w": 193.937,
+  "h": 193.937,
+  "px": [
+   1254,
+   1254
+  ],
+  "screen_px": [
+   177,
+   182,
+   1071,
+   848
+  ]
+ }
+}

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Zach’s Edit Lab · Wii Menu</title>
+<link rel="icon" href="menu/player-one.png">
+<link rel="stylesheet" href="menu/menu.css">
+<link rel="stylesheet" href="channels/edit-lab/channel.css">
+</head>
+<body>
+<main id="home" aria-label="Wii Menu, portfolio of Zach Straley">
+ <div class="wall"><div id="grid" aria-label="Channels">
+ <button class="tile live" type="button" id="edit-tile" aria-label="Open Zach’s Edit Lab preview"><span class="bubble" aria-hidden="true">Zach’s Edit Lab</span></button>
+ <div class="tile name-tag" role="img" aria-label="Hello, my name is Zach">
+  <svg viewBox="-7 -5 414 226" aria-hidden="true" focusable="false">
+   <image href="menu/name-tag.png" x="-32" y="-119" width="457" height="457"/>
+   <defs>
+    <!-- One continuous marker stroke, including the loop in the h. -->
+    <path id="zach-signature" pathLength="1" d="M86 118 C94 104 126 98 158 98 C146 110 107 145 87 162 C111 155 135 146 161 146 C168 136 185 122 192 128 C196 134 182 150 171 151 C157 152 173 127 192 128 Q198 126 201 123 C195 134 181 155 194 151 Q201 149 209 140 C216 132 230 120 235 126 Q237 128 233 131 C224 122 202 151 216 153 C230 155 252 133 265 115 C283 89 267 92 257 113 Q247 134 239 153 C251 139 267 126 273 128 C280 132 260 150 272 152 Q283 155 300 141"/>
+   </defs>
+   <g fill="none" stroke="#242329" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round">
+    <use class="signature-still" href="#zach-signature"/>
+    <g class="signature-motion">
+     <use href="#zach-signature" stroke-dasharray="1 1" stroke-dashoffset="1">
+      <animate attributeName="stroke-dashoffset" values="1;1;0;0" keyTimes="0;.09;.42;1" dur="8s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.09;.83;.96;1" dur="8s" repeatCount="indefinite"/>
+     </use>
+     <g stroke="none" opacity="0">
+      <animateMotion keyPoints="0;0;1;1" keyTimes="0;.09;.42;1" calcMode="linear" dur="8s" repeatCount="indefinite"><mpath href="#zach-signature"/></animateMotion>
+      <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;.03;.08;.42;.48;1" dur="8s" repeatCount="indefinite"/>
+      <g transform="rotate(35)">
+       <animateTransform attributeName="transform" type="translate" additive="sum" values="0 -9;0 0;0 0;0 -10;0 -10" keyTimes="0;.09;.42;.48;1" dur="8s" repeatCount="indefinite"/>
+       <path fill="#242329" d="M-2 0 -3 -7 1 -11 3 -6 1 0Z"/>
+       <path fill="#565a60" d="M-3 -6 -5 -16 5 -16 3 -6Z"/>
+       <rect fill="#d5d5ce" stroke="#686b6b" stroke-width="1.2" x="-5" y="-43" width="10" height="28" rx="2"/>
+       <rect fill="#303438" x="-5.4" y="-48" width="10.8" height="10" rx="2"/>
+      </g>
+     </g>
+    </g>
+   </g>
+  </svg>
+  <span class="bubble" aria-hidden="true">Zach Straley</span>
+ </div>
+ </div><div class="edge" aria-hidden="true"></div></div>
+ <footer class="dock">
+ <svg class="dock-shape" viewBox="0 0 960 160" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="metal" x2="0" y2="1"><stop stop-color="#b4b7bd"/><stop offset=".36" stop-color="#dee0e4"/><stop offset="1" stop-color="#c7cad0"/></linearGradient></defs><path d="M-2 3 H143 C222 3 243 62 345 62 H615 C717 62 738 3 817 3 H962 V162 H-2Z" fill="url(#metal)"/><path d="M-2 3 H143 C222 3 243 62 345 62 H615 C717 62 738 3 817 3 H962" fill="none" stroke="#64c4de" stroke-width="2"/></svg>
+ <span class="wii" aria-hidden="true">Wii</span>
+ <time class="clock"><span class="clock-intro">Wii Menu</span><span id="digits"></span><span id="date"></span></time>
+ <a class="mail" href="mailto:zach@zachstraley.com" aria-label="Email Zach Straley"><i aria-hidden="true"></i></a>
+ </footer>
+</main>
+<div id="stage" aria-hidden="true"><video id="loop" src="channels/edit-lab/assets/loop.mp4" poster="channels/edit-lab/poster.webp" muted loop playsinline preload="auto"></video><div id="scene"></div></div>
+<div id="preview" role="dialog" aria-label="Zach’s Edit Lab preview" inert>
+ <button class="wiibtn" id="pv-menu">Wii Menu</button><span id="status" role="status"></span><button class="wiibtn" id="pv-start">Start</button>
+</div>
+<section id="final" aria-label="Zach’s Edit Lab channel" aria-hidden="true" inert>
+ <img id="final-imac" alt="">
+ <div class="screen" id="screen"><div class="page" tabindex="0" aria-label="Channel page">
+  <header class="lab-intro">
+    <h1>Zach’s Edit Lab</h1>
+    <p>I teach DaVinci Resolve by talking through the edit while I’m making it.</p>
+  </header>
+  <article class="lab-episode">
+    <img src="channels/edit-lab/batch-fades-cover.webp" alt="Batch Fades episode cover" width="432" height="768">
+    <div><h2>Batch fades</h2>
+    <p>After I say “a DaVinci Resolve side quest,” I bring in the tutorial audio just before the picture changes. That overlap carries the intro into the lesson.</p>
+    <p class="episode-result">50,339 views · 2,825 saves<br><small>Instagram · November 23, 2026</small></p></div>
+  </article>
+ </div><button id="enter-page" type="button">Enter page ↓</button></div>
+</section>
+<button class="back" id="back">Wii Menu</button>
+<script type="module" src="menu/menu.js"></script>
+</body></html>

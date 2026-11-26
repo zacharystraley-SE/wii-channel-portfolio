@@ -1,0 +1,78 @@
+/* Stage  the channel scene ---------- */
+#stage{position:fixed;overflow:hidden;z-index:5;border-radius:14px;background:#cfe3ea;visibility:hidden;contain:strict}
+#stage video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#scene{position:absolute;left:0;top:0;width:2560px;height:1440px;transform-origin:0 0;visibility:hidden}
+#scene .el{position:absolute;display:block;will-change:transform,opacity;pointer-events:none;user-select:none}
+#scene .grp{position:absolute;will-change:transform}
+#scene .grp img{position:absolute;left:0;top:0;width:100%;height:100%}
+
+/* ---------- preview: the expanded channel card, Wii style ---------- */
+#preview{position:fixed;left:0;right:0;bottom:0;z-index:7;display:flex;justify-content:space-between;gap:16px;
+ padding:clamp(14px,3vh,30px) clamp(16px,6vw,90px) clamp(16px,4vh,40px);visibility:hidden;opacity:0;
+ background:linear-gradient(#fff0,#ffffffb8 45%,#ffffffe6)}
+.wiibtn{min-width:clamp(150px,22vw,300px);min-height:clamp(48px,8vh,72px);border-radius:999px;border:3px solid #c9d1d6;background:linear-gradient(#fff,#eef2f4);
+ color:#7b858d;font:700 clamp(17px,2.2vw,24px)/1 Nunito,sans-serif;box-shadow:0 3px 0 #b9c2c8,0 8px 20px #0000001f}
+.wiibtn:hover{border-color:var(--cyan);color:#2f8fa6}
+.wiibtn:active{transform:translateY(2px);box-shadow:0 1px 0 #b9c2c8}
+
+/* ---------- final state: the sharp iMac with the channel page on its screen ---------- */
+#final{position:fixed;inset:0;z-index:6;visibility:hidden;overflow:hidden;background:radial-gradient(75% 85% at 50% 50%,#0000 55%,#0b3a4a40)}
+#final-imac{position:absolute;max-width:none;user-select:none;pointer-events:none}
+.screen{position:absolute;overflow:hidden;border-radius:1.2% / 1.6%;background:#f4f6f8;
+ box-shadow:inset 0 0 0 1px #0000004d,inset 0 0 40px #00000026}
+.screen::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+ background:radial-gradient(130% 90% at 50% 0%,#ffffff22,#fff0 45%),radial-gradient(120% 120% at 50% 50%,#0000 72%,#0000002a)}
+.page{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden}
+.back{position:fixed;left:clamp(12px,2.4vmin,26px);bottom:clamp(12px,2.4vmin,26px);z-index:8;display:flex;align-items:center;gap:8px;min-height:44px;padding:8px 18px 8px 10px;border-radius:999px;border:2px solid #cfd8de;background:#fff;color:var(--ink);font-weight:700;box-shadow:0 4px 14px #0002;visibility:hidden}
+.back span{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--cyan);color:#fff;font-size:15px}
+:root{--ink:#424951;--cyan:#35b0d7}
+#stage{pointer-events:none}
+#stage video{display:block}
+#preview{justify-content:center;gap:clamp(24px,6vw,100px);align-items:center;background:linear-gradient(#e9e9e8,#d3d5d7);border-top:2px solid #b1b4b6;padding:clamp(12px,2.8vh,28px) 15px max(env(safe-area-inset-bottom),2.8vh)}
+.wiibtn{color:#444d53;font-family:"Trebuchet MS",Arial,sans-serif;box-shadow:inset 0 2px 2px white,0 3px 0 #9fb3bd;min-width:min(36vw,275px)}
+#status{position:absolute;bottom:100%;border-radius:12px;background:white;color:#56616a;padding:4px 10px}#status:empty{display:none}
+.back{bottom:max(14px,env(safe-area-inset-bottom));padding:9px 22px;background:linear-gradient(white,#e3e8ea);color:#434c52}
+.page{container-type:inline-size;overscroll-behavior:contain;background:#f5f4ee;color:#203d3d}
+@media(orientation:portrait){#stage video{object-fit:contain}#stage{background:#131718}}
+#stage.idle video{object-fit:cover}
+
+/* The glass belongs to the shell. Page content stays mounted throughout the reveal. */
+.screen::after {
+  z-index:1;
+  background:
+    radial-gradient(ellipse at center,transparent 45%,rgb(25 46 44 / 15%) 100%),
+    repeating-linear-gradient(0deg,transparent 0 2px,rgb(27 49 46 / 6%) 2px 3px),
+    repeating-linear-gradient(90deg,rgb(171 97 74 / 3%) 0 1px,rgb(68 126 95 / 3%) 1px 2px,transparent 2px 3px);
+  opacity:1;
+  transition:opacity .42s ease;
+}
+.screen .page {
+  background:#f7f6ef;
+  transition:filter .42s ease, text-shadow .42s ease;
+  filter:blur(.22px);
+  text-shadow:.4px 0 1px rgb(40 113 104 / 22%);
+}
+#final:not(.reader-open) { touch-action:pinch-zoom; }
+.screen:not(.reading) .page, #final.turning .page {overflow:hidden;}
+.screen.reading::after {opacity:0;}
+.screen.reading .page {filter:none;text-shadow:none;}
+#screen.reading {border-radius:0;box-shadow:none;}
+#final.reader-open #final-imac {visibility:hidden;}
+#enter-page {
+  position:absolute;z-index:2;right:clamp(12px,4%,42px);bottom:clamp(12px,5%,40px);
+  min-height:44px;padding:8px 18px;border:1px solid #849992;border-radius:25px;
+  background:#fafaf2;color:#294a42;font:600 15px/1.2 system-ui,sans-serif;
+}
+.screen.reading #enter-page {visibility:hidden;}
+.lab-intro,.lab-episode {padding:clamp(20px,7cqw,112px);}
+.lab-intro {min-height:100%;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;}
+.lab-intro h1,.lab-episode h2 {color:#143d34;font-family:Georgia,serif;font-weight:400;line-height:1.05;margin:0;}
+.lab-intro h1 {font-size:clamp(32px,7.6cqw,106px);letter-spacing:-.045em;}
+.lab-intro p,.lab-episode p {font:clamp(16px,2.2cqw,24px)/1.5 system-ui,sans-serif;max-width:40ch;}
+.lab-intro p {margin:.8em 0 0;}
+.lab-episode {border-top:1px solid #c5cec5;display:grid;align-items:center;grid-template-columns:minmax(90px,26%) 1fr;gap:5cqw;background:#e7ede4;}
+.lab-episode img {width:100%;height:auto;}
+.lab-episode h2 {font-size:clamp(27px,4.5cqw,60px);}
+.lab-episode .episode-result {font-size:clamp(14px,1.65cqw,18px);font-weight:600;}
+@container (max-width:500px){.lab-episode{grid-template-columns:1fr;}.lab-episode img{width:48%;}}
+@media(prefers-reduced-motion:reduce){.screen::after,.screen .page{transition-duration:.12s;}}
