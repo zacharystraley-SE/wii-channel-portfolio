@@ -1,6 +1,6 @@
 # Wii Channel Portfolio handoff
 
-Zach Straley's portfolio as a Nintendo Wii-style menu. Each project is a channel. The first live channel is Zach's Edit Lab. Yester Zone is next.
+Zach Straley's portfolio as a Nintendo Wii-style menu. Each project is a channel. Two channels are live: Zach's Edit Lab and The Yester Zone.
 
 ## Stack and commands
 
@@ -12,12 +12,14 @@ Run it from the repo root:
 
 Then open http://127.0.0.1:8787/. Only `public/` is the site. On Windows, use `py -3` in place of `python3`.
 
-Browser checks live in `work/` (`check.mjs`, `check-grain.mjs`, `verify-handoff.mjs`). They drive Chrome over the DevTools protocol, so start Chrome with `--remote-debugging-port=9236`, keep the server on 8787 running, then run `node work/check.mjs` from the repo root. They need Node 22 or newer for the built-in WebSocket. `work/baseline.mjs` still points at an old 8786 server and is out of date.
+Python's server can't answer byte-range requests, so videos can't seek under it. The Yester Zone channel seeks its clips, so for that channel (and for the browser checks) serve with `node work/serve.mjs public 8787` instead. It has no dependencies. Cloudflare and other real hosts support ranges already.
+
+Browser checks live in `work/` (`check.mjs`, `check-grain.mjs`, `verify-handoff.mjs`, `check-yz.mjs`). They drive Chrome over the DevTools protocol, so start Chrome with `--remote-debugging-port=9236`, keep the server on 8787 running, then run `node work/check.mjs` from the repo root. They need Node 22 or newer for the built-in WebSocket. `work/baseline.mjs` still points at an old 8786 server and is out of date.
 
 ## Folder map
 
-- `public/index.html` holds every view. `#home` is the menu wall, `#stage` holds the cover video and the layered scene, `#preview` has the Wii Menu and Start buttons, and `#final` is the iMac with the channel page.
-- `public/menu/menu.js` runs the menu. It fills the 12-slot grid with grain tiles, runs the clock, handles tile select, preview, Start, Back, Escape, and the wheel, swipe and "Enter page" gestures on the final screen. It also sets `--screen-w` and `--screen-h` on `#screen`.
+- `public/index.html` holds every view. `#home` is the menu wall. Each live tile has its own stage: `#stage` (Edit Lab: cover video and layered scene) and `#yz-stage` (Yester Zone: cover video and the camera swing). `#preview` has the Wii Menu and Start buttons, and `#final` is the shared bezel image plus the channel page. Edit Lab's page lives in `<template id="page-edit-lab">` and is copied into `.page` on Start.
+- `public/menu/menu.js` runs the menu. It reads the live tiles' `data-channel` / `data-stage` / `data-title`, loads `channels/<data-channel>/transition.js` for the clicked tile, fills the 12-slot grid with grain tiles, runs the clock, handles tile select, preview, Start, Back, Escape, and the wheel, swipe and "Enter page" gestures on the final screen. It also sets `--screen-w` and `--screen-h` on `#screen`.
 - `public/menu/menu.css` styles the wall, tiles, dock and the name tag. Portrait switches the grid to 3 columns by 4 rows.
 - `public/menu/` also has `grain.png`, `name-tag.png`, `player-one.png` (cursor and favicon), `static.webp` and `static-still.webp`.
 - `public/channels/edit-lab/` is everything Edit Lab specific.
@@ -25,6 +27,13 @@ Browser checks live in `work/` (`check.mjs`, `check-grain.mjs`, `verify-handoff.
   - `manifest.json` lists every layer on the 2560x1440 design canvas, the zoom target (`zoom.screen`), the loop length (10 s at 60 fps) and the sharp iMac (`hires`).
   - `channel.css` styles the stage, preview, final iMac and the `.screen` / `.page` container.
   - `assets/` has the layer WebPs, `loop.mp4`, `overlay.webp` and `imac.webp`. `poster.webp` is the video poster. `batch-fades-cover.webp` is used on the channel page.
+- `public/channels/yester-zone/` is everything Yester Zone specific.
+  - `transition.js` exports `prepareChannel()` with the same `{ startChannel, closeChannel, layoutFinal }` contract. Start plays `assets/swing.mp4` (a Blender camera move from the cover's angled shot to a head-on view of the TV) while the live broadcast is pinned to the glass on every frame using `assets/track.json`; Wii Menu plays `assets/swing-back.mp4`.
+  - `tube.js` is the TV picture used everywhere: a 4:3 letterboxed clip, the on-screen display in the bars (Breakout Video logo plus views, likes and comments for breakout videos, channel number for all), static between channels, scanlines and glass glare.
+  - `channels.json` is the channel list: number, YouTube title and ID, clip, poster and the `breakout` stats snapshot (`statsAsOf`). Update stats here; nothing needs re-rendering.
+  - `clips/` holds the five 40-second 720p clips and posters. `assets/` holds `cover.mp4` (15 s loop, baked), `cover-poster.webp`, `swing.mp4`, `swing-back.mp4`, `tv.webp` (3200x1800 head-on TV, the bezel for the page), `breakout-logo.webp` and `track.json`.
+  - `channel.css` styles the stage, the tube and the page. Page rules are scoped to `#final[data-channel="yester-zone"]`.
+- `work/yz-bake/` rebuilds `cover.mp4`: `index.html` draws the held TV render (`held_390.png`, not in Git) with the tube on the glass, `bake.mjs` captures 450 frames through Chrome, then ffmpeg encodes them (command in the PR description).
 - `reference/edit-lab-channel/` is the original Claude prototype, kept for reference: `index.html`, `index.template.html`, its own `HANDOFF.md`, `manifest.json`, `assets/` and the Python scripts that rendered the loop and cut the layers (`render.py`, `build_assets.py`, `cutout.py`, `align.py`, `imac_cut.py`).
 - `work/` keeps the browser test scripts and `adapt.py`, which ported the prototype into `public/`.
 - `Channel build sheet.md` is the build notes from the ChatGPT session.
@@ -41,13 +50,13 @@ Browser checks live in `work/` (`check.mjs`, `check-grain.mjs`, `verify-handoff.
 
 ## Adding a channel
 
-Today the wiring is Edit Lab specific. `menu.js` imports `../channels/edit-lab/transition.js` directly, `#edit-tile` is the only live tile and `#stage` has one hard-coded video.
+Add a `button.tile.live` with `data-channel="<folder>"`, `data-stage="<stage id>"` and `data-title`, a matching stage element (fixed, holds the channel's cover `<video>`), and `public/channels/<folder>/transition.js` exporting `prepareChannel()`. The menu pins every stage over its tile while idle, hides the other stages with `display:none` while one is open, and caches each prepared channel.
 
 Shared and reusable: the wall, the grid and grain, the dock and clock, `expand()` from tile to full screen, the preview buttons, focus handling, Back and Escape, and the `#final` / `.screen` / `.page` reading behavior.
 
 Edit Lab only: `channels/edit-lab/` (transition choreography, manifest, layers, loop and iMac), the `#loop` source and poster, and the page content inside `.page`.
 
-To add Yester Zone, make `channels/yester-zone/` with its own cover loop, poster and a module that exports `prepareChannel()` returning the same `{ startChannel, closeChannel, layoutFinal }` shape. Then make the tile, the video source and the imported module come from the clicked tile (for example a `data-channel` attribute) instead of being fixed to Edit Lab. Its transition can differ completely as long as that contract holds.
+A channel's `startChannel()` must claim the shared shell itself: set `#final-imac` to its own bezel image and fill `#screen > .page` with its own page, because another channel may have used them last. Its transition can differ completely as long as that contract holds.
 
 ## Screen container contract
 
@@ -79,9 +88,16 @@ These stay on Zach's Mac in `/Users/zstraley/Documents/ChatGPT/Zach/`:
 
 ## Known gaps
 
-- Only one channel is wired, and the wiring assumes Edit Lab.
 - The channel page is a placeholder (intro plus the Batch Fades episode).
 - `work/baseline.mjs` targets the old port.
+- The Yester Zone intro line on its page is placeholder copy for Zach to rewrite.
+
+## Yester Zone sources (Zach's PC, not in Git)
+
+- `C:\CRT Projects\CRT_TV_MASTER.blend` is Zach's original. Never open or save it.
+- `C:\CRT Projects\CRT_TV_YesterZone.blend` is an untouched duplicate. `CRT_TV_YesterZone_web.blend` is the working copy: render-hidden viewport-hidden lights, a dim glowing screen material (`CRT Off Glass`), and the camera move extended from frame 390 to a head-on view at 450.
+- `C:\CRT Projects\Yester Zone Web\` holds the scripts (`scripts/`), renders, clip cuts (`clips/`, `cut.sh`) and encodes. `scripts/track_glass.py` re-exports the glass corners if the camera changes.
+- Never commit `.blend` files; `.gitignore` blocks them.
 
 ## Working rules
 

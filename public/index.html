@@ -3,15 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Zach’s Edit Lab · Wii Menu</title>
+<title>Zach Straley · Wii Menu</title>
 <link rel="icon" href="menu/player-one.png">
 <link rel="stylesheet" href="menu/menu.css">
 <link rel="stylesheet" href="channels/edit-lab/channel.css">
+<link rel="stylesheet" href="channels/yester-zone/channel.css">
 </head>
 <body>
 <main id="home" aria-label="Wii Menu, portfolio of Zach Straley">
  <div class="wall"><div id="grid" aria-label="Channels">
- <button class="tile live" type="button" id="edit-tile" aria-label="Open Zach’s Edit Lab preview"><span class="bubble" aria-hidden="true">Zach’s Edit Lab</span></button>
+ <button class="tile live" type="button" id="edit-tile" data-channel="edit-lab" data-stage="stage" data-title="Zach’s Edit Lab" aria-label="Open Zach’s Edit Lab preview"><span class="bubble" aria-hidden="true">Zach’s Edit Lab</span></button>
+ <button class="tile live" type="button" id="yz-tile" data-channel="yester-zone" data-stage="yz-stage" data-title="The Yester Zone" aria-label="Open The Yester Zone preview"><span class="bubble" aria-hidden="true">The Yester Zone</span></button>
  <div class="tile name-tag" role="img" aria-label="Hello, my name is Zach">
   <svg viewBox="-7 -5 414 226" aria-hidden="true" focusable="false">
    <image href="menu/name-tag.png" x="-32" y="-119" width="457" height="457"/>
@@ -51,12 +53,17 @@
  </footer>
 </main>
 <div id="stage" aria-hidden="true"><video id="loop" src="channels/edit-lab/assets/loop.mp4" poster="channels/edit-lab/poster.webp" muted loop playsinline preload="auto"></video><div id="scene"></div></div>
+<div id="yz-stage" aria-hidden="true"><video id="yz-loop" src="channels/yester-zone/assets/cover.mp4" poster="channels/yester-zone/assets/cover-poster.webp" muted loop playsinline preload="auto"></video><div id="yz-scene"></div></div>
 <div id="preview" role="dialog" aria-label="Zach’s Edit Lab preview" inert>
  <button class="wiibtn" id="pv-menu">Wii Menu</button><span id="status" role="status"></span><button class="wiibtn" id="pv-start">Start</button>
 </div>
 <section id="final" aria-label="Zach’s Edit Lab channel" aria-hidden="true" inert>
  <img id="final-imac" alt="">
  <div class="screen" id="screen"><div class="page" tabindex="0" aria-label="Channel page">
+ </div><button id="enter-page" type="button">Enter page ↓</button></div>
+</section>
+<button class="back" id="back">Wii Menu</button>
+<template id="page-edit-lab">
   <header class="lab-intro">
     <h1>Zach’s Edit Lab</h1>
     <p>I teach DaVinci Resolve by talking through the edit while I’m making it.</p>
@@ -67,8 +74,6 @@
     <p>After I say “a DaVinci Resolve side quest,” I bring in the tutorial audio just before the picture changes. That overlap carries the intro into the lesson.</p>
     <p class="episode-result">50,339 views · 2,825 saves<br><small>Instagram · November 23, 2026</small></p></div>
   </article>
- </div><button id="enter-page" type="button">Enter page ↓</button></div>
-</section>
-<button class="back" id="back">Wii Menu</button>
+</template>
 <script type="module" src="menu/menu.js"></script>
 </body></html>

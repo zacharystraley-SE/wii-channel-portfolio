@@ -1,0 +1,38 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="/public/channels/yester-zone/channel.css">
+<style>html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:#000}
+#held{position:absolute;inset:0;width:1920px;height:1080px}
+#host .yz-tube{position:absolute;left:0;top:0;width:1440px;height:1080px;transform-origin:0 0}</style></head>
+<body><img id="held" src="held_390.png"><div id="host"></div>
+<script type="module">
+// Bakes the Yester Zone cover loop: the held TV shot with the three breakout videos on the glass.
+import { loadChannels, createTube, homography } from '/public/channels/yester-zone/tube.js';
+const data = await loadChannels();
+const track = await (await fetch('/public/channels/yester-zone/assets/track.json')).json();
+const tube = createTube(data);
+document.getElementById('host').append(tube.el);
+tube.el.style.transform = homography(1440, 1080, track.frames['390'].map(([x, y]) => [x * 1920, y * 1080]));
+let current = -1;
+window.bake = {
+  ready: false,
+  async at(t) {
+    const seg = track.cover.segments.find(s => t >= s.start && t < s.end);
+    if (seg.static) {
+      tube.label(seg.index);
+      tube.showStatic(true);
+      return true;
+    }
+    tube.showStatic(false);
+    if (current !== seg.index) { await tube.tune(seg.index, { burst: false, time: seg.clipStart, play: false }); current = seg.index; }
+    const want = seg.clipStart + (t - seg.start);
+    if (Math.abs(tube.video.currentTime - want) > 0.001) {
+      tube.video.currentTime = want;
+      await new Promise(r => tube.video.addEventListener('seeked', r, { once: true }));
+    }
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    return true;
+  },
+};
+await Promise.all([...document.images].map(i => i.decode()));
+window.bake.ready = true;
+</script></body></html>

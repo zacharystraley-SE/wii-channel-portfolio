@@ -38,3 +38,7 @@ work/*.pid
 work/*.png
 work/*.jpg
 work/grain-review/
+
+# Yester Zone cover bake: render inputs and frame dumps stay local; only cover.mp4 is committed
+work/yz-bake/frames/
+work/yz-bake/*.png
