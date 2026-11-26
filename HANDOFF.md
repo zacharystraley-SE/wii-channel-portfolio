@@ -1,0 +1,90 @@
+# Wii Channel Portfolio handoff
+
+Zach Straley's portfolio as a Nintendo Wii-style menu. Each project is a channel. The first live channel is Zach's Edit Lab. Yester Zone is next.
+
+## Stack and commands
+
+Plain static HTML, CSS and JavaScript (ES modules and the Web Animations API). No framework, no package.json, no install and no build step.
+
+Run it from the repo root:
+
+    python3 -m http.server 8787 --bind 127.0.0.1 --directory public
+
+Then open http://127.0.0.1:8787/. Only `public/` is the site. On Windows, use `py -3` in place of `python3`.
+
+Browser checks live in `work/` (`check.mjs`, `check-grain.mjs`, `verify-handoff.mjs`). They drive Chrome over the DevTools protocol, so start Chrome with `--remote-debugging-port=9236`, keep the server on 8787 running, then run `node work/check.mjs` from the repo root. They need Node 22 or newer for the built-in WebSocket. `work/baseline.mjs` still points at an old 8786 server and is out of date.
+
+## Folder map
+
+- `public/index.html` holds every view. `#home` is the menu wall, `#stage` holds the cover video and the layered scene, `#preview` has the Wii Menu and Start buttons, and `#final` is the iMac with the channel page.
+- `public/menu/menu.js` runs the menu. It fills the 12-slot grid with grain tiles, runs the clock, handles tile select, preview, Start, Back, Escape, and the wheel, swipe and "Enter page" gestures on the final screen. It also sets `--screen-w` and `--screen-h` on `#screen`.
+- `public/menu/menu.css` styles the wall, tiles, dock and the name tag. Portrait switches the grid to 3 columns by 4 rows.
+- `public/menu/` also has `grain.png`, `name-tag.png`, `player-one.png` (cursor and favicon), `static.webp` and `static-still.webp`.
+- `public/channels/edit-lab/` is everything Edit Lab specific.
+  - `transition.js` exports `prepareChannel()`, which returns `{ startChannel, closeChannel, layoutFinal }`. It holds the fall-apart physics, the cloud motion, the camera zoom into the cyan iMac and the swap to the sharp iMac image.
+  - `manifest.json` lists every layer on the 2560x1440 design canvas, the zoom target (`zoom.screen`), the loop length (10 s at 60 fps) and the sharp iMac (`hires`).
+  - `channel.css` styles the stage, preview, final iMac and the `.screen` / `.page` container.
+  - `assets/` has the layer WebPs, `loop.mp4`, `overlay.webp` and `imac.webp`. `poster.webp` is the video poster. `batch-fades-cover.webp` is used on the channel page.
+- `reference/edit-lab-channel/` is the original Claude prototype, kept for reference: `index.html`, `index.template.html`, its own `HANDOFF.md`, `manifest.json`, `assets/` and the Python scripts that rendered the loop and cut the layers (`render.py`, `build_assets.py`, `cutout.py`, `align.py`, `imac_cut.py`).
+- `work/` keeps the browser test scripts and `adapt.py`, which ported the prototype into `public/`.
+- `Channel build sheet.md` is the build notes from the ChatGPT session.
+- `Bear looking right.png` is the source photo of Bear.
+
+## Where each part of the flow lives
+
+- Home menu grid: `#grid` in `index.html`, filled to 12 slots by `emptySlot()` in `menu.js`, styled in `menu.css`.
+- Edit Lab tile: `button.tile.live#edit-tile` in `index.html`. Its cover is the `#stage` video, pinned to the tile's bounds while idle.
+- Cover loop: `video#loop` in `#stage`, source `channels/edit-lab/assets/loop.mp4`.
+- Preview: `select()` and `expand(true)` in `menu.js` grow the stage from the clicked tile. The loop keeps playing. `#pv-menu` goes home and `#pv-start` enters.
+- Fall-apart and zoom: `enter()` in `menu.js` calls `startChannel()` in `transition.js`. That reads `video.currentTime`, rebuilds the same frame from the layers, drops the letters, clears the clouds and zooms into the iMac.
+- Final iMac screen: `section#final`, with `img#final-imac` and `.screen#screen > .page`. `layoutFinal()` sizes them.
+
+## Adding a channel
+
+Today the wiring is Edit Lab specific. `menu.js` imports `../channels/edit-lab/transition.js` directly, `#edit-tile` is the only live tile and `#stage` has one hard-coded video.
+
+Shared and reusable: the wall, the grid and grain, the dock and clock, `expand()` from tile to full screen, the preview buttons, focus handling, Back and Escape, and the `#final` / `.screen` / `.page` reading behavior.
+
+Edit Lab only: `channels/edit-lab/` (transition choreography, manifest, layers, loop and iMac), the `#loop` source and poster, and the page content inside `.page`.
+
+To add Yester Zone, make `channels/yester-zone/` with its own cover loop, poster and a module that exports `prepareChannel()` returning the same `{ startChannel, closeChannel, layoutFinal }` shape. Then make the tile, the video source and the imported module come from the clicked tile (for example a `data-channel` attribute) instead of being fixed to Edit Lab. Its transition can differ completely as long as that contract holds.
+
+## Screen container contract
+
+- Put the channel page inside `#screen > .page` in `public/index.html`. Replace the children of `.page` and keep `.page` itself, because it is the scroll container.
+- Keep `#screen`, `#final-imac`, `#enter-page` and `#back`. The shell owns glass alignment, the return control and the transition.
+- Size content from the container, not the window. `menu.js` sets `--screen-w` and `--screen-h` on `#screen` from a ResizeObserver, and they always match the usable glass or the expanded view. Scope styles to `.page` or use a separate stylesheet.
+- The page first rests inside the glass at 86% of the window height or 92% of its width, whichever is smaller (`SCREEN_H` and `SCREEN_W` in `transition.js`). A downward wheel, an upward swipe of 22 px or more, or the "Enter page" button expands `.screen` to the full window (`.screen.reading`), and then the page scrolls normally.
+- On phones it works the same way. In portrait the cover video is letterboxed (`object-fit: contain`) and the page still starts in the glass, then expands on swipe.
+
+## Cover video specs (Edit Lab)
+
+- `loop.mp4`: 1920x1080, 60 fps, H.264 yuv420p, faststart, about 4.6 MB, a seamless 10 s loop with one keyframe per loop.
+- The tag is `muted loop playsinline preload="auto"` with `poster="channels/edit-lab/poster.webp"`, and it autoplays from `menu.js`.
+- The loop timing and the layer positions share the 2560x1440 canvas. Changing Bear's timing in only one of them breaks the video-to-layer handoff on Start.
+- With reduced motion the video stays paused on its frame, the menu grain is hidden, the signature shows finished, and Start skips the fall and zoom.
+
+## Where it goes live
+
+Not decided. Nothing here is deployed. Zach's live site is a separate repo (zacharystraley-SE.github.io, Cloudflare Workers) and sandbox.zachstraley.com exists for tests, but neither has this site yet.
+
+## Not in Git
+
+These stay on Zach's Mac in `/Users/zstraley/Documents/ChatGPT/Zach/`:
+
+- `Bondi Blue iMac G3 - Front - 4096.png` (10 MB master; the page uses `assets/imac.webp`)
+- `reference/edit-lab-channel/source-layers/` (22 MB of layered PNG exports from Canva)
+- `public/resumes/` and `work/resume-export/` (resumes with personal contact details; nothing links to them yet)
+- `work/` logs, pid files, screenshots and `grain-review/` frames
+
+## Known gaps
+
+- Only one channel is wired, and the wiring assumes Edit Lab.
+- The channel page is a placeholder (intro plus the Batch Fades episode).
+- `work/baseline.mjs` targets the old port.
+
+## Working rules
+
+- The ChatGPT session on the Mac and the Claude chat on the PC each work on their own branch and merge through a pull request on GitHub. Neither works on `main` directly.
+- Pull `main` before starting a branch.
+- This repo is public. Never commit `.env` files, tokens, passwords or personal documents.
